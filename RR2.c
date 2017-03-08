@@ -9,19 +9,13 @@
 #include "interrupt.h"
 #include "queue.h"
 
-<<<<<<< HEAD
 /******************************************************************************
  *                           CABECERAS DE FUNCIONES                           *
  ******************************************************************************/
-=======
-long hungry = 0L;
->>>>>>> 58ede2682e5f81f2258f5ce1cd49bcb002d7178a
 
 TCB* scheduler();
 void activator();
 void timer_interrupt(int sig);
-
-<<<<<<< HEAD
 
 /******************************************************************************
  *                             VARIABLES GLOBALES                             *
@@ -39,10 +33,6 @@ static int init = 0; // Indica si la libreria 'mythread' ha sido iniciada.
 struct queue *cola; // Cola para tratar los procesos.
 static TCB* previo; // Hilo que que se expulsa en un cambio de contexto.
 
-
-/******************************************************************************
- *                                 FUNCIONES                                  *
- ******************************************************************************/
 
 /*
  * Inicializar la lista de TCBs, para ello se introduce un hilo 'testigo' que no
@@ -117,100 +107,18 @@ void mythread_exit() {
     previo = &t_state[tid]; // Se guarda el hilo que ha terminado.
     TCB* next = scheduler(); // Se pide al scheduler un nuevo hilo.
     activator(next); // Se cambia el contexto.
-=======
-/* Creacion de la cola */
-//struct queue *cola = queue_new();
-
-/* Array of state thread control blocks: the process allows a maximum of N threads */
-static TCB t_state[N]; 
-/* Current running thread */
-static TCB* running;
-static int current = 0;
-/* Variable indicating if the library is initialized (init == 1) or not (init == 0) */
-static int init=0;
-
-/* Initialize the thread library */
-void init_mythreadlib() {
-  int i;  
-  t_state[0].state = INIT;
-  t_state[0].priority = LOW_PRIORITY;
-  t_state[0].ticks = QUANTUM_TICKS;
-  if(getcontext(&t_state[0].run_env) == -1){
-    perror("getcontext in my_thread_create");
-    exit(5);
-  }	
-  for(i=1; i<N; i++){
-    t_state[i].state = FREE;
-  }
-  t_state[0].tid = 0;
-  running = &t_state[0];
-  init_interrupt();
 }
 
 
-/* Create and intialize a new thread with body fun_addr and one integer argument */ 
-int mythread_create (void (*fun_addr)(),int priority)
-{
-  int i;
-  
-  if (!init) { init_mythreadlib(); init=1;}
-  for (i=0; i<N; i++)
-    if (t_state[i].state == FREE) break;
-  if (i == N) return(-1);
-  if(getcontext(&t_state[i].run_env) == -1){
-    perror("getcontext in my_thread_create");
-    exit(-1);
-  }
-  t_state[i].state = INIT;
-  t_state[i].priority = priority;
-  t_state[i].function = fun_addr;
-  t_state[i].run_env.uc_stack.ss_sp = (void *)(malloc(STACKSIZE));
-  if(t_state[i].run_env.uc_stack.ss_sp == NULL){
-    printf("thread failed to get stack space\n");
-    exit(-1);
-  }
-  /*  */
-  t_state[i].ticks = QUANTUM_TICKS;
-  t_state[i].tid = i;	
-  t_state[i].run_env.uc_stack.ss_size = STACKSIZE;
-  t_state[i].run_env.uc_stack.ss_flags = 0;
-  makecontext(&t_state[i].run_env, fun_addr, 1);  
-
-  /*disable_interrupt();
-  enqueue(cola, (void *)&t_state[i]);
-  enable_interrupt();*/
-
-  return i;
-} /****** End my_thread_create() ******/
-
-
-/* Free terminated thread and exits */
-void mythread_exit() {
-  int tid = mythread_gettid();	
-
-  printf("Thread %d finished\n ***************\n", tid);	
-  t_state[tid].state = FREE;
-  free(t_state[tid].run_env.uc_stack.ss_sp); 
-  
-  TCB* next = scheduler();
-  activator(next);
->>>>>>> 58ede2682e5f81f2258f5ce1cd49bcb002d7178a
-}
 
 /* Sets the priority of the calling thread */
 void mythread_setpriority(int priority) {
-<<<<<<< HEAD
     int tid = mythread_gettid();
     t_state[tid].priority = priority;
-=======
-  int tid = mythread_gettid();	
-  t_state[tid].priority = priority;
->>>>>>> 58ede2682e5f81f2258f5ce1cd49bcb002d7178a
 }
 
 /* Returns the priority of the calling thread */
 int mythread_getpriority(int priority) {
-<<<<<<< HEAD
     int tid = mythread_gettid();
     return t_state[tid].priority;
 }
@@ -291,53 +199,3 @@ void activator(TCB* next) {
         swapcontext(&(previo->run_env), &(next->run_env));
     }
 }
-=======
-  int tid = mythread_gettid();	
-  return t_state[tid].priority;
-}
-
-
-/* Get the current thread id.  */
-int mythread_gettid(){
-  if (!init) { init_mythreadlib(); init=1;}
-  return current;
-}
-
-/* Timer interrupt  */
-void timer_interrupt(int sig)
-{
-	if (running->ticks <= 0) {
-		running->ticks = QUANTUM_TICKS;
-		TCB* next = scheduler();
-		activator(next);
-		
-	} else {
-		running->ticks--;
-	}
-} 
-
-
-
-/* Scheduler: returns the next thread to be executed */
-TCB* scheduler(){
-  int i;
-  for(i=0; i<N; i++){
-      if (t_state[i].state == INIT) {
-        current = i;
-	      return &t_state[i];
-	    }
-  }
-  printf("mythread_free: No thread in the system\nExiting...\n");	
-  exit(1);
-}
-
-/* Activator */
-void activator(TCB* next){
-	setcontext (&(next->run_env));
-	printf("mythread_free: After setcontext, should never get here!!...\n");	
-  
-}
-
-
-
->>>>>>> 58ede2682e5f81f2258f5ce1cd49bcb002d7178a
