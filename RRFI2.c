@@ -30,7 +30,8 @@ static int init = 0; // Indica si la libreria 'mythread' ha sido iniciada.
 
 
 // VARIABLES PROPIAS.
-struct queue *cola; // Cola para tratar los procesos.
+struct queue *cola; // Cola para tratar los procesos no prioritarios.
+struct queue *prio; // Cola para tratar los procesos prioritarios.
 
 
 /*
@@ -52,7 +53,8 @@ void init_mythreadlib() {
     t_state[0].tid = 0;
     running = &t_state[0];
 
-    cola = queue_new(); // Inicializamos la cola de procesos.
+    cola = queue_new(); // Inicializamos la cola de procesos no prioritarios.
+    prio = queue_new(); // Inicializamos la cola de procesos prioritarios.
     running = &t_state[0]; // Ponemos el hilo 'testigo' a ejecutar.
 
     init_interrupt();
@@ -87,9 +89,23 @@ int mythread_create (void (*fun_addr)(), int priority) {
     makecontext(&t_state[i].run_env, fun_addr, 1);
 
     /* Añadir el nuevo hilo a la cola. */
-    disable_interrupt();
-    enqueue(cola, &t_state[i]);
-    enable_interrupt();
+    if (priority == HIGH_PRIORITY) {
+        if (running->priority == HIGH_PRIORITY) {
+            disable_interrupt();
+            enqueue(prio, &t_state[i]);
+            enable_interrupt();
+        } else {
+            running->ticks = QUANTUM_TICKS;
+            disable_interrupt(); 
+            enqueue(cola, running);
+            enable_interrupt(); 
+            activator(&t_state[i]);
+        }
+    } else {
+        disable_interrupt();
+        enqueue(cola, &t_state[i]);
+        enable_interrupt();
+    }
 
     return i;
 } /****** End my_thread_create() ******/
@@ -101,6 +117,7 @@ void mythread_exit() {
     printf("*** THREAD %d FINISHED\n", tid);
     t_state[tid].state = FREE;
     free(t_state[tid].run_env.uc_stack.ss_sp); 
+
 
     TCB* next = scheduler(); // Se pide al scheduler un nuevo hilo.
     activator(next); // Se cambia el contexto.
@@ -124,10 +141,31 @@ int mythread_gettid() {
     return current;
 }
 
-/*
- * Timer interrupt. Aqui se implementa el planificador RR.
- */
+/* Timer interrupt. Aqui se implementa el planificador RR. */
 void timer_interrupt(int sig) {
+
+    /* Comprobamos que las colas esten vacias */
+    disable_interrupt();
+    int fifo_vacia = queue_empty(prio);
+    int rr_vacia = queue_empty(cola);
+    enable_interrupt();
+
+    if (!fifo_vacia && !rr_vacia) ++hungry; // Ambas colas tienen elementos.
+    else hungry = 0L; // Una de las dos esta vacia.
+
+    if (hungry >= STARVATION)
+        while (!rr_vacia) {
+            TCB *t;
+            disable_interrupt();
+            t = dequeue(cola);
+            enqueue(prio, t);
+            rr_vacia = queue_empty(cola);
+            enable_interrupt();
+            printf("*** THREAD %d PROMOTED TO HIGH PRIORITY QUEUE\n",t->tid);
+        }
+
+    if (running->priority == HIGH_PRIORITY) return;
+
     // Reducimos los ticks.
     running->ticks--;
 
@@ -136,12 +174,14 @@ void timer_interrupt(int sig) {
         // Re-establecemos los datos del proceso.
         running->ticks = QUANTUM_TICKS;
 
+        disable_interrupt();
+        cola_vacia = queue_empty(cola);
+        enable_interrupt();
+
+        if (cola_vacia) return; // Ningún candidato de ejecución.
+
         // Pedimos el siguiente proceso y guardamos este.
         TCB *next = scheduler();
-        if (next->tid == running->tid) {
-            printf("-\n");
-            return; // Same thread.
-        }
 
         // Encolamos el proceso.
         disable_interrupt();
@@ -156,9 +196,25 @@ void timer_interrupt(int sig) {
 /* Scheduler: returns the next thread to be executed */
 TCB* scheduler() {
 
+    int cola_vacia;
+
+    // Caso en el que hay threads prioritarias.
     // Ver si la cola esta vacía.
     disable_interrupt();
-    int cola_vacia = queue_empty(cola);
+    cola_vacia = queue_empty(prio);
+    enable_interrupt();
+
+    if (!cola_vacia) {
+        disable_interrupt();
+        TCB *siguiente = dequeue(prio);
+        enable_interrupt();
+
+        return siguiente;
+    }
+
+    // No hay threads prioritarias.
+    disable_interrupt();
+    cola_vacia = queue_empty(cola);
     enable_interrupt();
 
     if (cola_vacia) {
@@ -189,10 +245,17 @@ void activator(TCB* next) {
         setcontext(&(running->run_env));
 
         printf("mythread_free: After setcontext, should never get here!!...\n");
+    } else if (running->priority == LOW_PRIORITY &&
+            next->priority == HIGH_PRIORITY) {
+        TCB* previo = running;
+        printf("*** THREAD %d EJECTED: SET CONTEXT OF %d", previo->tid, next->tid);
+        running = next;
+        current = next->tid;
+        swapcontext(&(previo->run_env), &(next->run_env));
     } else {
-        printf("*** SWAPCONTEXT FROM %d to %d\n", running->tid, next->tid);
+        TCB* previo = running;
+        printf("*** SWAPCONTEXT FROM %d to %d\n", previo->tid, next->tid);
         // Establecemos el nuevo proceso como en funcionamiento.
-        TCB *previo = running;
         running = next;
         current = next->tid;
         swapcontext(&(previo->run_env), &(next->run_env));
