@@ -139,7 +139,6 @@ void timer_interrupt(int sig) {
         // Pedimos el siguiente proceso y guardamos este.
         TCB *next = scheduler();
         if (next->tid == running->tid) {
-            printf("-\n");
             return; // Same thread.
         }
 

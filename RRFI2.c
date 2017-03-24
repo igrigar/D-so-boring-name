@@ -175,10 +175,11 @@ void timer_interrupt(int sig) {
         running->ticks = QUANTUM_TICKS;
 
         disable_interrupt();
-        cola_vacia = queue_empty(cola);
+        int cola_vacia = queue_empty(cola);
+        int cola_vacia_prio = queue_empty(prio);
         enable_interrupt();
 
-        if (cola_vacia) return; // Ningún candidato de ejecución.
+        if (cola_vacia && cola_vacia_prio) return; // Ningún candidato de ejecución.
 
         // Pedimos el siguiente proceso y guardamos este.
         TCB *next = scheduler();
@@ -259,5 +260,5 @@ void activator(TCB* next) {
         running = next;
         current = next->tid;
         swapcontext(&(previo->run_env), &(next->run_env));
-    }
-}
+     }
+} 

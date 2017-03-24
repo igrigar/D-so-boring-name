@@ -157,7 +157,7 @@ void timer_interrupt(int sig) {
         running->ticks = QUANTUM_TICKS;
 
         disable_interrupt();
-        cola_vacia = queue_empty(cola);
+        int cola_vacia = queue_empty(cola);
         enable_interrupt();
 
         if (cola_vacia) return; // Ningún candidato de ejecución.
