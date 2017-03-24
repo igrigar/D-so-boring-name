@@ -151,7 +151,7 @@ void timer_interrupt(int sig) {
     /* Si el proceso es priotario, se ejecuta hasta el final */
     if (running->priority == HIGH_PRIORITY) return;
 
-    /* Reducimos los ticks */
+    /* Si no es priotario, reducimos los ticks */
     running->ticks--;
 
     /* Comprobamos si la rodaja ha terminado */
@@ -234,8 +234,7 @@ void activator(TCB* next) {
         //printf("mythread_free: After setcontext, should never get here!!...\n");
     }
     /* Si un proceso no prioritario ha sido expulsado, guardamos su estado para reestablecerlo posteriormente */
-    else if (running->priority == LOW_PRIORITY &&
-            next->priority == HIGH_PRIORITY) {
+    else if (running->priority == LOW_PRIORITY && next->priority == HIGH_PRIORITY) {
         TCB* previo = running;
         printf("*** THREAD %d EJECTED: SET CONTEXT OF %d\n", previo->tid, next->tid);
         running = next;
