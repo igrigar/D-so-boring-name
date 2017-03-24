@@ -190,7 +190,7 @@ void activator(TCB* next) {
         running = next;
         current = next->tid;
         setcontext(&(running->run_env));
-        //printf("mythread_free: After setcontext, should never get here!!...\n");
+        printf("mythread_free: After setcontext, should never get here!!...\n");
     }
     /* Si aun no ha finalizado, guardamos su estado para reestablecerlo posteriormente */
     else {

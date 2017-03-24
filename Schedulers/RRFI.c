@@ -258,7 +258,7 @@ void activator(TCB* next) {
         running = next;
         current = next->tid;
         setcontext(&(running->run_env));
-        //printf("mythread_free: After setcontext, should never get here!!...\n");
+        printf("mythread_free: After setcontext, should never get here!!...\n");
     }
     /* Si un proceso no prioritario ha sido expulsado, guardamos su estado para reestablecerlo posteriormente */
     else if (running->priority == LOW_PRIORITY && next->priority == HIGH_PRIORITY) {
