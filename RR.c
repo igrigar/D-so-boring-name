@@ -153,20 +153,25 @@ void timer_interrupt(int sig) {
 /* Scheduler: returns the next thread to be executed */
 TCB* scheduler() {
 
-    /* Ver si la cola esta vacia */
+    /* Comprobamos si la cola esta vacia */
     disable_interrupt();
     int cola_vacia = queue_empty(cola);
     enable_interrupt();
 
+    /* Si la cola esta vacia */
     if (cola_vacia) {
-        /* Hay un proceso en ejecucion */
-        if (running->state == INIT)
+        /* En caso de que haya un proceso en ejecucion, se devuelve el proceso hasta su finalizacion */
+        if (running->state == INIT){
             return running;
-        else { /* El ultimo proceso en ejecucion ya ha terminado */
+        }
+        /* Si el ultimo proceso ya ha terminado, finaliza el programa */
+        else {
             printf("FINISH\n");
             exit(1);
         }
-    } else {
+    }
+    /* Si la cola no esta vacia */
+    else {
         /* Obtener el siguiente elemento de la cola */
         disable_interrupt();
         TCB *next = dequeue(cola);
@@ -178,17 +183,16 @@ TCB* scheduler() {
 
 /* Activator */
 void activator(TCB* next) {
-    /* Si el proceso ha finalizado */
+    /* Si el proceso ha finalizado, se establece el nuevo proceso */
     if (running->state == FREE) {
         printf("*** THREAD %d FINISHED: SET CONTEXT OF %d\n", running->tid, next->tid);
         /* Establecemos el nuevo proceso como en funcionamiento */
         running = next;
         current = next->tid;
         setcontext(&(running->run_env));
-
-        printf("mythread_free: After setcontext, should never get here!!...\n");
+        //printf("mythread_free: After setcontext, should never get here!!...\n");
     }
-    /* Si aun no ha finalizado */
+    /* Si aun no ha finalizado, guardamos su estado para reestablecerlo posteriormente */
     else {
         printf("*** SWAPCONTEXT FROM %d to %d\n", running->tid, next->tid);
         /* Establecemos el nuevo proceso como en funcionamiento */
