@@ -21,21 +21,20 @@ void timer_interrupt(int sig);
  *                             VARIABLES GLOBALES                             *
  ******************************************************************************/
 
-long hungry = 0L; // Supongo que para saber si un hilo esta hambriento,
-                  // no es útil en este caso.
-static TCB t_state[N]; // Array de TCBs.
-static TCB* running; // Hilo que se encuentra en estado de ejecución.
-static int current = 0; // ID del hilo que se esta ejecutando.
-static int init = 0; // Indica si la libreria 'mythread' ha sido iniciada.
+long hungry = 0L;       /* Variable para saber si un proceso esta hambriento */
+static TCB t_state[N];  /* Array de TCBs */
+static TCB* running;    /* Hilo que se encuentra en estado de ejecución */
+static int current = 0; /* ID del hilo que se esta ejecutando */
+static int init = 0;    /* Indica si la libreria 'mythread' ha sido iniciada */
 
-
-// VARIABLES PROPIAS.
-struct queue *cola; // Cola para tratar los procesos.
-
+/******************************************************************************
+ *                             VARIABLES PROPIAS                           *
+ ******************************************************************************/
+struct queue *cola;     /* Cola de procesos */
 
 /*
  * Inicializar la lista de TCBs, para ello se introduce un hilo 'testigo' que no
- * hace nada. También se ponen todos los hilos con estado 'FREE'.
+ * hace nada. Tambien se ponen todos los hilos con estado 'FREE'.
  */
 void init_mythreadlib() {
     int i;
@@ -50,10 +49,9 @@ void init_mythreadlib() {
         t_state[i].state = FREE;
     }
     t_state[0].tid = 0;
-    running = &t_state[0];
 
-    cola = queue_new(); // Inicializamos la cola de procesos.
-    running = &t_state[0]; // Ponemos el hilo 'testigo' a ejecutar.
+    cola = queue_new();     /* Inicialización de la cola de procesos */
+    running = &t_state[0];  /* Ponemos el hilo 'testigo' a ejecutar */
 
     init_interrupt();
 }
@@ -71,7 +69,7 @@ int mythread_create (void (*fun_addr)(), int priority) {
         exit(-1);
     }
 
-    t_state[i].ticks = QUANTUM_TICKS; // Se necesita para las rodajas de tiempo.
+    t_state[i].ticks = QUANTUM_TICKS; /* Numero de ticks de un proceso */
     t_state[i].state = INIT;
     t_state[i].priority = priority;
     t_state[i].function = fun_addr;
@@ -86,7 +84,7 @@ int mythread_create (void (*fun_addr)(), int priority) {
     t_state[i].run_env.uc_stack.ss_flags = 0;
     makecontext(&t_state[i].run_env, fun_addr, 1);
 
-    /* Añadir el nuevo hilo a la cola. */
+    /* Añadir el nuevo proceso a la cola */
     disable_interrupt();
     enqueue(cola, &t_state[i]);
     enable_interrupt();
@@ -100,10 +98,10 @@ void mythread_exit() {
 
     printf("*** THREAD %d FINISHED\n", tid);
     t_state[tid].state = FREE;
-    free(t_state[tid].run_env.uc_stack.ss_sp); 
+    free(t_state[tid].run_env.uc_stack.ss_sp);
 
-    TCB* next = scheduler(); // Se pide al scheduler un nuevo hilo.
-    activator(next); // Se cambia el contexto.
+    TCB* next = scheduler(); /* Se pide al scheduler un nuevo proceso */
+    activator(next); /* Se cambia el contexto */
 }
 
 /* Sets the priority of the calling thread */
@@ -118,36 +116,36 @@ int mythread_getpriority(int priority) {
     return t_state[tid].priority;
 }
 
-/* Get the current thread id.  */
+/* Get the current thread id */
 int mythread_gettid() {
     if (!init) {init_mythreadlib(); init=1;}
     return current;
 }
 
 /*
- * Timer interrupt. Aqui se implementa el planificador RR.
+ * Timer interrupt. Implementacion del planificador RR
  */
 void timer_interrupt(int sig) {
-    // Reducimos los ticks.
+    /* Reducimos los ticks */
     running->ticks--;
 
-    // Comprobamos si la rodaja ha terminado.
+    /* Comprobamos si la rodaja ha terminado */
     if (running->ticks <= 0) {
-        // Re-establecemos los datos del proceso.
+        /* Re-establecemos los datos del proceso */
         running->ticks = QUANTUM_TICKS;
 
-        // Pedimos el siguiente proceso y guardamos este.
+        /* Pedimos el siguiente proceso y guardamos este */
         TCB *next = scheduler();
         if (next->tid == running->tid) {
-            return; // Same thread.
+            return; /* Mismo proceso */
         }
 
-        // Encolamos el proceso.
+        /* Encolamos el proceso */
         disable_interrupt();
         enqueue(cola, running);
         enable_interrupt();
 
-        // Realizamos el cambio de contexto.
+        /* Realizamos el cambio de contexto */
         activator(next);
     }
 }
@@ -155,42 +153,45 @@ void timer_interrupt(int sig) {
 /* Scheduler: returns the next thread to be executed */
 TCB* scheduler() {
 
-    // Ver si la cola esta vacía.
+    /* Ver si la cola esta vacia */
     disable_interrupt();
     int cola_vacia = queue_empty(cola);
     enable_interrupt();
 
     if (cola_vacia) {
-        // Hay un proceso en ejecución:
+        /* Hay un proceso en ejecucion */
         if (running->state == INIT)
             return running;
-        else { // El último proceso en ejecución ya ha terminado.
+        else { /* El ultimo proceso en ejecucion ya ha terminado */
             printf("FINISH\n");
             exit(1);
         }
     } else {
-        // Obtener el siguiente elemento de la cola.
+        /* Obtener el siguiente elemento de la cola */
         disable_interrupt();
-        TCB *siguiente = dequeue(cola);
+        TCB *next = dequeue(cola);
         enable_interrupt();
 
-        return siguiente;
+        return next;
     }
 }
 
 /* Activator */
 void activator(TCB* next) {
+    /* Si el proceso ha finalizado */
     if (running->state == FREE) {
         printf("*** THREAD %d FINISHED: SET CONTEXT OF %d\n", running->tid, next->tid);
-        // Establecemos el nuevo proceso como en funcionamiento.
+        /* Establecemos el nuevo proceso como en funcionamiento */
         running = next;
         current = next->tid;
         setcontext(&(running->run_env));
 
         printf("mythread_free: After setcontext, should never get here!!...\n");
-    } else {
+    }
+    /* Si aun no ha finalizado */
+    else {
         printf("*** SWAPCONTEXT FROM %d to %d\n", running->tid, next->tid);
-        // Establecemos el nuevo proceso como en funcionamiento.
+        /* Establecemos el nuevo proceso como en funcionamiento */
         TCB *previo = running;
         running = next;
         current = next->tid;
