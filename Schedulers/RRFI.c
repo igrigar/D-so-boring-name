@@ -185,17 +185,11 @@ void timer_interrupt(int sig) {
         /* Re-establecemos los datos del proceso */
         running->ticks = QUANTUM_TICKS;
 
-        /* Comprobamos si ambas colas estan vacias */
-        disable_interrupt();
-        int cola_vacia_LOW = queue_empty(cola_LOW);
-        int cola_vacia_HIGH = queue_empty(cola_HIGH);
-        enable_interrupt();
-
-        /* Ningún candidato de ejecucion */
-        if (cola_vacia_LOW && cola_vacia_HIGH) return;
-
         /* Pedimos el siguiente proceso y guardamos este */
         TCB *next = scheduler();
+        if (next->tid == running->tid) {
+            return; /* Mismo proceso */
+        }
 
         /* Encolamos el proceso */
         disable_interrupt();
@@ -263,7 +257,7 @@ void activator(TCB* next) {
     /* Si un proceso no prioritario ha sido expulsado, guardamos su estado para reestablecerlo posteriormente */
     else if (running->priority == LOW_PRIORITY && next->priority == HIGH_PRIORITY) {
         TCB* previo = running;
-        printf("*** THREAD %d EJECTED: SET CONTEXT OF %d", previo->tid, next->tid);
+        printf("*** THREAD %d EJECTED: SET CONTEXT OF %d\n", previo->tid, next->tid);
         running = next;
         current = next->tid;
         swapcontext(&(previo->run_env), &(next->run_env));
