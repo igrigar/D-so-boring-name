@@ -6,44 +6,64 @@
  * @date	01/03/2017
  */
 
-#ifndef _METADATA_H_
-#define _METADATA_H_
+#define PADDING_SB 2020
+#define PADDING_INODO 20
+#define PADDING_MMAP 1894
 
-#define PADDING_SB
-#define PADDING_INODO
+#define MAX_INODO 64
+#define MAX_DATA 90
+#define MAX_OPEN_FILES 32
 
-#define numInodo 64
-#define numBloquesDato 2048
+#define FILE_NAME_SIZE 32
 
+/******************************************************************************
+ *                            ESTRUCTURAS EN DISCO                            *
+ ******************************************************************************/
 
-typedef struct{
-	unsigned int numMagico; /* Número mágico del superbloque: 0x000D5500 */
-	unsigned int numBloquesMapaInodos; /* Número de bloques del mapa inodos */
-	unsigned int numBloquesMapaDatos; /* Número de bloques del mapa datos */
-	unsigned int numInodos; /* Número de inodos en el dispositivo */
-	unsigned int primerInodo; /* Número bloque del 1º inodo del disp. (inodo raíz) */
-	unsigned int numBloquesDatos; /* Número de bloques de datos en el disp. */
-	unsigned int primerBloqueDatos; /* Número de bloque del 1º bloque de datos */
-	unsigned int tamDispositivo; /* Tamaño total del disp. (en bytes) */
-	char relleno[PADDING_SB]; /* Campo de relleno (para completar un bloque) */
-} TipoSuperbloque;
-
+// Estructura de superbloque. Tamaño: 28B + padding.
 typedef struct {
-	char nombre[32]; /* Nombre del fichero/directorio asociado */
-	unsigned int tamanyo; /* Tamaño actual del fichero en bytes */
-	unsigned int bloqueDirecto; /* Número del bloque directo */
-	char relleno[PADDING_INODO]; /* Campo relleno para llenar un bloque */
-} TipoInodoDisco;
+    unsigned int magNum; // Número mágico del superbloque.
+    unsigned int mapBlocks; // Número de bloques que ocupa el mapa.
+    unsigned int inodeNum; // Número de i-nodos.
+    unsigned int firstInode; // Bloque donde empiezan los i-nodos.
+    unsigned int dataNum; // Número de bloques de datos.
+    unsigned int firstData; // Bloque donde empiezan los datos.
+    unsigned int devSize; // Tamaño del dispositivo.
+    char padding[PADDING_SB]; // Relleno.
+} sb_t;
 
-TipoSuperbloque sbloques[1];
-char i_map [numInodo];
-char b_map [numBloquesDato];
-TipoInodoDisco inodos [numInodo];
+// Estructura de i-nodo.
+typedef struct {
+    unsigned int inode; // Número de i-nodo.
+    char name[FILE_NAME_SIZE]; // Nombre del archivo del i-nodo.
+    unsigned int size; // Tamaño del fichero.
+    unsigned int firstBlock; // Primer bloque directo.
+    char padding[PADDING_INODO];
+} inode_t;
 
-struct{
-	int posicion;
-	int abierto;
+// Estructura de mapa de memoria. Bytes.
+typedef struct {
+    char iNode[MAX_INODO]; // Mapa de i-nodos libres.
+    char data[MAX_DATA]; // Mapa de bloques de memoria libres.
+    char padding[PADDING_MMAP]; // Relleno para llegar al tamaño de bloque.
+} mmap_t;
 
-} inodos_x [numInodo];
+// Estructura para almacenar un sub-bloque de datos.
+typedef struct {
+    char data[(MAX_FILE_SIZE/2) - 1];
+    char next;
+} block_t;
 
-#endif
+
+/******************************************************************************
+ *                           ESTRUCTURAS EN MEMORIA                           *
+ ******************************************************************************/
+
+/******************************************************************************
+ *                             VARIABLES GLOBALES                             *
+ ******************************************************************************/
+
+sb_t *superBlock; // Superbloque.
+inode_t *inodes; // i-nodos.
+mmap_t *mmap; // Mapa de memoria.
+int openFiles[MAX_OPEN_FILES][2]; // Tabla de i-nodos con punteros de posición.

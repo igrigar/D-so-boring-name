@@ -6,3 +6,9 @@
  * @date	01/03/2017
  */
 
+int namei(char *name);
+int ialloc();
+int ifree(int i);
+int balloc();
+int bfree(int b);
+int bmap(int i, int offset);
