@@ -10,7 +10,7 @@
 #include <stdlib.h>
 #include <strings.h>
 #include <string.h>
-
+#include <stdint.h>
 #include <stdio.h>
 
 #include "include/filesystem.h"		// Headers for the core functionality
@@ -542,4 +542,83 @@ int  bmap(int i, int offset) {
 	sb = (block_t *) subBlock;
 
 	return sb->next;
+}
+
+/*
+ * @Brief: calcular el valor de reduncancia cíclica de los distintos artefactos
+ *	presentes en el sistema.
+ * @Return: valor de redundanca cíclica, -1 en caso de error.
+ */
+uint32_t computeCRC(int i, int type) {
+	char *buffer, block[BLOCK_SIZE];
+	int size;
+	uint32_t crc;
+
+	switch (type) {
+		case CRC_SB:
+			// Tamaño de los metadatos: #Bloques inodos + mapa memoria.
+			size = (superBlock[0].inodeNum * sizeof(inode_t)) + BLOCK_SIZE;
+			buffer = malloc(size);
+
+			// Obtenemos el bloque de mapa memoria.
+			if (bread(DEVICE_IMAGE, 2, block) == -1) return -1;
+			strncpy((char *) buffer, block, BLOCK_SIZE); // Lo copiamos al nuevo buffer.
+
+			// Obtenemos los i-nodos.
+			for (int i = 0; 
+					i < (superBlock[0].inodeNum * sizeof(inode_t)) /BLOCK_SIZE;
+					i++) {
+				if (bread(DEVICE_IMAGE, i + superBlock[0].firstInode, block) == -1)
+					return -1; // Leemos el bloque de i-nodos.
+				strncpy((char *) buffer + ((1 + i) * BLOCK_SIZE), block, BLOCK_SIZE);
+			}
+
+			crc = CRC32((const unsigned char *) buffer, size);
+			free(buffer);
+			return crc;
+		case CRC_FILE:
+			if (i < 0 || i >= MAX_INODO) return -1; // i-nodo erróneo.
+
+			// Reservamos la memoria.
+			size = inodes[i].size;
+			buffer = malloc(size);
+
+			// Buscando bloque encadenado, si lo hubiese.
+			if (bread(DEVICE_IMAGE, inodes[i].firstBlock/2 + superBlock[0].firstData,
+				block) == -1) return -1;
+
+			char subBlock[BLOCK_SIZE/2];
+			block_t *sb;
+
+			int offset = (inodes[i].firstBlock%2) * sizeof(block_t);
+			strncpy(subBlock, (char *) block + offset, sizeof(block_t));
+			sb = (block_t *) subBlock;
+
+			if (sb->next == -1) { // Solo un sub-bloque.
+				strncpy((char *) buffer, sb->data, size);
+				crc = CRC32((const unsigned char *) buffer, size);
+				free(buffer);
+				return crc;
+			}
+
+			// Primer sub-bloque.
+			strncpy((char *) buffer, sb->data, (BLOCK_SIZE/2) - 1);
+
+			// Segundo sub-bloque.
+			if (bread(DEVICE_IMAGE, sb->next/2 + superBlock[0].firstData,
+				block) == -1)	return -1;
+
+			offset = (sb->next%2) * sizeof(block_t);
+			strncpy(subBlock, (char *) block + offset, sizeof(block_t));
+			sb = (block_t *) subBlock;
+
+			// Copiamos lo que falta.
+			strncpy((char *) buffer + (BLOCK_SIZE/2) - 1, sb->data,
+				size - (BLOCK_SIZE/2) - 1);
+
+			crc = CRC32((const unsigned char *) buffer, size);
+			free(buffer);
+			return crc;
+		default: return -1;
+	}
 }
