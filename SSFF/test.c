@@ -434,5 +434,27 @@ int main() {
 	}
 	printf("]\n\n");
 
+	
+	//mkFS más grande
+  ret = mkFS(DEV_SIZE+1);
+	if(ret != 0) {
+		printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "mkFS muy grande ", ANSI_COLOR_RED, "FAILED\n", ANSI_COLOR_RESET);
+	}
+	else{ printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "mkFS muy grande ", ANSI_COLOR_GREEN, "SUCCESS\n", ANSI_COLOR_RESET);}
+
+	
+	//mkFS con tamaÃ±o más pequeño que el device size, fallo al intentar crear un archivo
+   ret = mkFS(5000);
+	if(ret != 0) {
+		printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "mkFS muy pequeño ", ANSI_COLOR_RED, "FAILED\n", ANSI_COLOR_RESET);
+	}
+	else{ printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "mkFS muy pequeño ", ANSI_COLOR_GREEN, "SUCCESS\n", ANSI_COLOR_RESET);}
+
+	
+   // Borramos un fichero que antes existia pero ya no.     <- PONERLO EN LA LÍNEA 332, TRAS "ABRIR UN FICHERO QUE ANTES EXISTIA PERO YA NO"
+	ret = removeFile("test_0.txt");
+	if (ret == -1)
+		printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "old ", ANSI_COLOR_RED, "BAD_CLOSE\n", ANSI_COLOR_RESET);
+	
 	return 0;
 }
