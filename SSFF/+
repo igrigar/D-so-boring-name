@@ -156,7 +156,7 @@ int createFile(char *fileName)
 	// Establecer datos del i-nodo.
 	inodes[i].inode = i;
 	strcpy(inodes[i].name, fileName);
-	inodes[i].size = 1; // Al menos tiene el puntero al siguiente bloque (-1).
+	inodes[i].size = 0; // Al menos tiene el puntero al siguiente bloque (-1).
 	inodes[i].firstBlock = b;
 	inodes[i].crc = 0;
 
@@ -256,10 +256,10 @@ int readFile(int fileDescriptor, void *buffer, int numBytes)
 		numBytes -= ((numBytes + openFiles[fileDescriptor][1]) - MAX_FILE_SIZE);
 
 	// Obtener el bloque de memoria.
+	char block[BLOCK_SIZE];
 	int blockNum = bmap(openFiles[fileDescriptor][0], openFiles[fileDescriptor][1]);
 
 	// Leemos el bloque de memoria.
-	char block[BLOCK_SIZE];
 	if (bread(DEVICE_IMAGE, (blockNum/2 + superBlock[0].firstData), block) == -1) return -1;
 
 	// Obtenemos el sub-bloque.
@@ -273,11 +273,11 @@ int readFile(int fileDescriptor, void *buffer, int numBytes)
 
 	// Relativizamos el puntero de lectura.
 	int pointer = openFiles[fileDescriptor][1];
-	while (pointer >= SUB_BLOCK_SIZE) pointer -= SUB_BLOCK_SIZE;
-	
+	while (pointer >= MAX_FILE_SIZE/2) pointer -= MAX_FILE_SIZE/2;
+
 	// Escribimos en el sub-bloque.
-	if ((SUB_BLOCK_SIZE - pointer) < numBytes) { // Caso mitad dos bloques.
-		int read = SUB_BLOCK_SIZE - pointer; // Cuanto se va a leer 1er bloque.
+	if (((MAX_FILE_SIZE/2) - pointer) < numBytes) { // Caso mitad dos bloques.
+		int read = (MAX_FILE_SIZE/2) - pointer; // Cuanto se va a leer 1er bloque.
 
 		strncpy(buffer, (char *) sb[0].data + pointer, numBytes); // Copiamos los datos.
 
@@ -304,14 +304,15 @@ int readFile(int fileDescriptor, void *buffer, int numBytes)
  */
 int writeFile(int fileDescriptor, void *buffer, int numBytes)
 {
+	printf("<> %d\n", openFiles[fileDescriptor][1]);
 	// Descriptor de fichero no válido.
 	if (fileDescriptor >= MAX_OPEN_FILES || fileDescriptor < 0) return -1;
 	if (openFiles[fileDescriptor][0] == -1) return -1; // Fichero cerrado.
 
 	// Intentando escribir más que el tamaño máximo.
-	if (numBytes + openFiles[fileDescriptor][1] > MAX_FILE_SIZE)
+	if (numBytes + openFiles[fileDescriptor][1] > MAX_FILE_SIZE - 2)
 		// Escribimos el mayor número de bytes posible.
-		numBytes -= ((numBytes + openFiles[fileDescriptor][1]) - MAX_FILE_SIZE);
+		numBytes -= ((numBytes + openFiles[fileDescriptor][1]) - MAX_FILE_SIZE + 2);
 
 	// Obtener el bloque de memoria.
 	int blockNum = bmap(openFiles[fileDescriptor][0], openFiles[fileDescriptor][1]);
@@ -332,16 +333,20 @@ int writeFile(int fileDescriptor, void *buffer, int numBytes)
 	int pointer = openFiles[fileDescriptor][1];
 	while (pointer >= SUB_BLOCK_SIZE) pointer -= SUB_BLOCK_SIZE;
 
+	printf("WRITE: %dB at %d in block %d. ABS PTR: %d\n", numBytes, pointer,
+		blockNum, openFiles[fileDescriptor][1]);
+
 	// Pedimos un sub-bloque nuevo si fuese necesario.
-	if (pointer + numBytes >= SUB_BLOCK_SIZE &&// Escribimos al menos un sub-bloque entero.
-			(inodes[openFiles[fileDescriptor][0]].size + numBytes) < MAX_FILE_SIZE
-			&& sb->next < 0 ) {
+	if (pointer + numBytes >= SUB_BLOCK_SIZE && sb->next < 0 &&
+			inodes[openFiles[fileDescriptor][0]].size + numBytes < MAX_FILE_SIZE - 1) {
 		sb->next = balloc(); // Intentamos obtener sub-bloque nuevo.
 		inodes[openFiles[fileDescriptor][0]].size++;
+		printf("OBTENIDO NUEVO BLOQUE: %d\n", sb->next);
 	}
 
 	// Escribimos en el sub-bloque.
 	if ((SUB_BLOCK_SIZE - pointer) < numBytes) { // Caso mitad dos bloques.
+		//printf("CHECK: %d <= %d\n", SUB_BLOCK_SIZE - pointer, numBytes);
 		int written = SUB_BLOCK_SIZE - pointer;
 
 		// Copiamos el máximo numero de bytes posible
@@ -360,6 +365,7 @@ int writeFile(int fileDescriptor, void *buffer, int numBytes)
 		openFiles[fileDescriptor][1] += written;
 
 		if (sb->next < 0) { // No tiene siguiente sub-bloque asignado ni lo tendrá.
+			printf("BAD NEXT SUB-BLOCK\n");
 			return written;
 		}
 
@@ -375,7 +381,7 @@ int writeFile(int fileDescriptor, void *buffer, int numBytes)
 
 		// Establecemos el nuevo tamaño de fichero.
 		if (numBytes + openFiles[fileDescriptor][1] > inodes[openFiles[fileDescriptor][0]].size)
-			inodes[openFiles[fileDescriptor][0]].size += numBytes + openFiles[fileDescriptor][1];
+			inodes[openFiles[fileDescriptor][0]].size = numBytes + openFiles[fileDescriptor][1];
 
 		// Cambiamos el puntero del fichero.
 		openFiles[fileDescriptor][1] += numBytes;
@@ -384,7 +390,7 @@ int writeFile(int fileDescriptor, void *buffer, int numBytes)
 	// Guardamos el nuevo CRC.
 	inodes[openFiles[fileDescriptor][0]].crc =
 		computeCRC(openFiles[fileDescriptor][0], CRC_FILE);
-	
+
 	return numBytes;
 }
 
@@ -402,6 +408,7 @@ int lseekFile(int fileDescriptor, int whence, long offset)
 	int newPointer = openFiles[fileDescriptor][1] + offset;
 	switch (whence) {
 		case FS_SEEK_CUR:
+			printf("SEEKING FROM: %d TO %d\n", openFiles[fileDescriptor][1], newPointer);
 			if (newPointer < 0 || newPointer > inodes[openFiles[fileDescriptor][0]].size)
 				return -1;
 			else openFiles[fileDescriptor][1] = newPointer;
@@ -537,10 +544,8 @@ int bfree(int i) {
  */
 int  bmap(int i, int offset) {
 	if (i < 0 || i >= MAX_INODO) return -1; // i-nodo erróneo.
-	if (offset < 0) return -1; // Mal despazamiento.
 
-	if (offset < ((BLOCK_SIZE/2) - 1))
-		return inodes[i].firstBlock; // Puntero en primer bloque.
+	if (offset < ((BLOCK_SIZE/2) - 1)) return inodes[i].firstBlock; // Puntero en primer bloque.
 
 	// Buscando bloque encadenado, si lo hubiese.
 	char block[BLOCK_SIZE];
@@ -553,28 +558,6 @@ int  bmap(int i, int offset) {
 	offset = (inodes[i].firstBlock%2) * sizeof(block_t);
 	strncpy(subBlock, (char *) block + offset, sizeof(block_t));
 	sb = (block_t *) subBlock;
-
-	/*
-	// Forma 'genérica' de recorrer lista de bloques enlazados.
-	// Calculando el sub-bloque en el que esta.
-	int blockOffset = offset/SUB_BLOCK_SIZE;
-	int blockNum = inodes[i].firstBlock;
-
-	// Buscando bloque encadenado, si lo hubiese.
-	char block[BLOCK_SIZE];
-	char subBlock[BLOCK_SIZE/2];
-	block_t *sb;
-
-	for (int i = 0; i <= blockOffset; i++) {
-		if (bread(DEVICE_IMAGE, blockNum/2 + superBlock[0].firstData, block) == -1)
-			return -1;
-
-		offset = (blockNum%2) * sizeof(block_t);
-		strncpy(subBlock, (char *) block + offset, sizeof(block_t));
-		sb = (block_t *) subBlock;
-		if (sb->next == -1) return -1; // El offset es demasiado grande?
-	}
-	*/
 
 	return sb->next;
 }
@@ -612,43 +595,46 @@ uint32_t computeCRC(int i, int type) {
 			return crc;
 		case CRC_FILE:
 			if (i < 0 || i >= MAX_INODO) return -1; // i-nodo erróneo.
-
-			// Calculamos cuantos bloques debería tener el archivo.
-			int numBlock = (inodes[i].size/SUB_BLOCK_SIZE) + 1;
-
-			// Reservamos la memoria en bytes. Le sumamos el numBlock porque
-			// tiene tantos bytes de metadatos (puntero a siguiente bloque) como
-			// bloques.
-			size = numBlock * SUB_BLOCK_SIZE + numBlock;
+			// Reservamos la memoria.
+			size = inodes[i].size;
 			buffer = malloc(size);
 
-			// Guardamos la referencia al bloque directo.
-			int blockNum = inodes[i].firstBlock;
+			// Buscando bloque encadenado, si lo hubiese.
+			if (bread(DEVICE_IMAGE, inodes[i].firstBlock/2 + superBlock[0].firstData,
+				block) == -1) return -1;
 
-			// Cogemos los datos de todos los sub-bloques que haya.
-			for (int i = 0; i < numBlock; i++) {
-				if (bread(DEVICE_IMAGE, blockNum/2 + superBlock[0].firstData,
-					block) == -1) return -1;
+			char subBlock[BLOCK_SIZE/2];
+			block_t *sb;
 
-				char subBlock[BLOCK_SIZE/2];
-				block_t *sb;
+			int offset = (inodes[i].firstBlock%2) * sizeof(block_t);
+			strncpy(subBlock, (char *) block + offset, sizeof(block_t));
+			sb = (block_t *) subBlock;
 
-				int offset = (blockNum%2) * sizeof(block_t);
-				strncpy(subBlock, (char *) block + offset, sizeof(block_t));
-				sb = (block_t *) subBlock;
-
-				// Copiamos los datos al buffer.
-				strncpy((char *) buffer + (i * SUB_BLOCK_SIZE + 1), (char *) sb,
-					SUB_BLOCK_SIZE + 1);
-
-				// Obtenemos el siguiente sub-bloque.
-				blockNum = sb->next;
+			if (size < BLOCK_SIZE/2) { // Solo un sub-bloque.
+				strncpy((char *) buffer, sb->data, size);
+				crc = CRC32((const unsigned char *) buffer, size);
+				free(buffer);
+				return crc;
 			}
+
+			// Primer sub-bloque.
+			strncpy((char *) buffer, sb->data, (BLOCK_SIZE/2) - 1);
+
+			// Segundo sub-bloque.
+			if (bread(DEVICE_IMAGE, sb->next/2 + superBlock[0].firstData,
+				block) == -1)	return -1;
+
+			offset = (sb->next%2) * sizeof(block_t);
+			strncpy(subBlock, (char *) block + offset, sizeof(block_t));
+			sb = (block_t *) subBlock;
+
+			// Copiamos lo que falta.
+			strncpy((char *) buffer + (BLOCK_SIZE/2) - 1, sb->data,
+				size - (BLOCK_SIZE/2) - 1);
 
 			crc = CRC32((const unsigned char *) buffer, size);
 			free(buffer);
 			return crc;
-
 		default: return -1;
 	}
 }

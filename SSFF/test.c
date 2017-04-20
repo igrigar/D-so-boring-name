@@ -20,12 +20,13 @@
 #define N_BLOCKS	50						// Number of blocks in the device
 #define DEV_SIZE 	N_BLOCKS * BLOCK_SIZE	// Device size, in bytes
 
+#define SBUFF 128
 #define HBUFF 512 // Medio sub-bloque de datos.
 #define BUFF 1023 // Un sub-bloque de datos.
 #define FBUFF 2046 // Un bloque de datos (dos sub-bloques);
 
 // Cuatro bloques distintos para escribir en el disco.
-char blocks[4][2048] = {
+char blocks[5][2048] = {
 	"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" \
 	"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" \
 	"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" \
@@ -156,17 +157,52 @@ char blocks[4][2048] = {
 	"DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD" \
 	"DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD" \
 	"DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD" \
-	"DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD"
+	"DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD",
+
+        "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ" \
+        "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ" \
+        "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ" \
+        "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ" \
+        "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ" \
+        "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ" \
+        "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ" \
+        "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ" \
+        "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ" \
+        "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ" \
+        "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ" \
+        "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ" \
+        "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ" \
+        "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ" \
+        "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ" \
+        "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ" \
+        "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ" \
+        "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ" \
+        "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ" \
+        "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ" \
+        "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ" \
+        "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ" \
+        "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ" \
+        "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ" \
+        "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ" \
+        "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ" \
+        "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ" \
+        "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ" \
+        "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ" \
+        "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ" \
+        "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ" \
+        "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ"
 };
 
 int main() {
-	int ret, loopRet = 0;
-        char half_buff[HBUFF], buff[BUFF], full_buff[FBUFF];
+	setbuf(stdout, NULL);
 
-        // Limpiamos los buffers antes de empezar.
-        bzero(half_buff, HBUFF);
-        bzero(buff, BUFF);
-        bzero(full_buff, FBUFF);
+	int ret, loopRet = 0;
+	char half_buff[HBUFF], buff[BUFF], full_buff[FBUFF];
+
+	// Limpiamos los buffers antes de empezar.
+	bzero(half_buff, HBUFF);
+	bzero(buff, BUFF);
+	bzero(full_buff, FBUFF);
 
 	// Crear el SFF.
 	ret = mkFS(DEV_SIZE);
@@ -294,45 +330,53 @@ int main() {
 	if (ret == -1)
 		printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "old ", ANSI_COLOR_RED, "BAD_OPEN\n", ANSI_COLOR_RESET);
 	
-	// Creamos un fichero persistente al desmontado.
-	ret = createFile("persistent.txt");
+	// Creamos dos ficheros persistentes. 
+	ret = createFile("fbuff.txt");
+	if (ret == -1)
+		printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "persistent ", ANSI_COLOR_RED, "EXISTS\n", ANSI_COLOR_RESET);
+	else if (ret == -2)
+		printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "persistent ", ANSI_COLOR_RED, "FAIL CREAT\n", ANSI_COLOR_RESET);
+	ret = createFile("buff.txt");
 	if (ret == -1)
 		printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "persistent ", ANSI_COLOR_RED, "EXISTS\n", ANSI_COLOR_RESET);
 	else if (ret == -2)
 		printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "persistent ", ANSI_COLOR_RED, "FAIL CREAT\n", ANSI_COLOR_RESET);
 
-	// Escribimos un fichero entero.
-	ret = openFile("persistent.txt");
+	// Escribimos un fichero entero en una sola llamada..
+	ret = openFile("fbuff.txt");
+	if (ret == -1)
+		printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "persistent ", ANSI_COLOR_RED, "BAD_OPEN\n", ANSI_COLOR_RESET);
+	writeFile(ret, blocks[0], FBUFF); // DEBERIA ESTAR EN EL DISCO.
+
+	// Sobreescribimos partes pequeñas.
+	if (lseekFile(ret, FS_SEEK_BEGIN, 0) == -1)
+		printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "SEEK_BEGIN ", ANSI_COLOR_RED, "FAIL\n", ANSI_COLOR_RESET);
+	writeFile(ret, blocks[3], SBUFF);
+	if (lseekFile(ret, FS_SEEK_CUR, SBUFF) == -1)
+		printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "SEEK_CUR 128 ", ANSI_COLOR_RED, "FAIL\n", ANSI_COLOR_RESET);
+	writeFile(ret, blocks[3], SBUFF);
+	
+	if (lseekFile(ret, FS_SEEK_CUR, 1023) == -1)
+		printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "SEEK_CUR 1023 ", ANSI_COLOR_RED, "FAIL\n", ANSI_COLOR_RESET);
+	writeFile(ret, blocks[3], SBUFF);
+	closeFile(ret);
+
+	// Escribimos un fichero entero 'a trozos'.
+	ret = openFile("buff.txt");
 	if (ret == -1)
 		printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "persistent ", ANSI_COLOR_RED, "BAD_OPEN\n", ANSI_COLOR_RESET);
 	writeFile(ret, blocks[1], BUFF); // DEBERIA ESTAR EN EL DISCO.
 	writeFile(ret, blocks[2], BUFF); // DEBERIA ESTAR EN EL DISCO.
-	writeFile(ret, blocks[3], BUFF); // NO DEBERIA ESTAR EN EL DISCO.
+
 
 	// Leemos el fichero entero y comprobamos si se corresponde con lo escrito.
-	if (lseekFile(ret, FS_SEEK_BEGIN, 0) == -1)
-		printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "SEEK_BEGIN ", ANSI_COLOR_RED, "FAIL\n", ANSI_COLOR_RESET);
-        readFile(ret, buff, BUFF);
-        bzero(buff, BUFF);
-        readFile(ret, buff, BUFF);
-        bzero(buff, BUFF);
-
-
-        // Leer un fichero en un solo buffer.
-	if (lseekFile(ret, FS_SEEK_BEGIN, 0) == -1)
-		printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "SEEK_BEGIN ", ANSI_COLOR_RED, "FAIL\n", ANSI_COLOR_RESET);
-        readFile(ret, full_buff, FBUFF);
-        printf("FULL BUFFER: %s\n", full_buff);
-        bzero(full_buff, FBUFF);
-
-
-	// Sobreescibimos partes para comprobar lseekFile.
-	if (lseekFile(ret, FS_SEEK_BEGIN, 0) == -1)
-		printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "SEEK_BEGIN ", ANSI_COLOR_RED, "FAIL\n", ANSI_COLOR_RESET);
-	writeFile(ret, blocks[0], 512); // DEBERIA ESTAR EN EL DISCO.
-	if (lseekFile(ret, FS_SEEK_CUR, 32) == -1)
-		printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "SEEK_CUR ", ANSI_COLOR_RED, "FAIL\n", ANSI_COLOR_RESET);
-	writeFile(ret, blocks[3], 64);
+	// en una sola llamada.
+	ret = openFile("fbuff.txt");
+	if (ret == -1)
+		printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "persistent ", ANSI_COLOR_RED, "BAD_OPEN\n", ANSI_COLOR_RESET);
+	readFile(ret, full_buff, FBUFF);
+	printf("\nBLOQUE ENTERO: [%s]\n\n", full_buff);
+	bzero(buff, FBUFF);
 
 	// Desmontar el sistema de ficheros.
 	ret = unmountFS();
@@ -351,24 +395,44 @@ int main() {
 	}
 	fprintf(stdout, "%s%s%s%s%s", ANSI_COLOR_BLUE, "mountFS ", ANSI_COLOR_GREEN, "SUCCESS\n", ANSI_COLOR_RESET);
 
-	ret = openFile("persistent.txt");
+
+	// Leemos trozos de un fichero guardado en disco.
+	ret = openFile("fbuff.txt");
 	if (ret == -1)
 		printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "persistent ", ANSI_COLOR_RED, "BAD_OPEN\n", ANSI_COLOR_RESET);
-
 	readFile(ret, half_buff, HBUFF);
-	printf("BUFFER: %s\n", half_buff); // Comprobacion visual de lo que se supone que está escrito.
+	printf("MEDIO BLOQUE: [%s]\n\n", half_buff);
 	bzero(half_buff, HBUFF);
 
-	readFile(ret, half_buff, HBUFF);
-	printf("BUFFER: %s\n", half_buff); // Comprobacion visual de lo que se supone que está escrito.
-	bzero(half_buff, HBUFF);
+	if (lseekFile(ret, FS_SEEK_CUR, SBUFF) == -1)
+		printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "SEEK_CUR 128 ", ANSI_COLOR_RED, "FAIL\n", ANSI_COLOR_RESET);
+	readFile(ret, half_buff, SBUFF);
+	printf("CUARTO BLOQUE: [%s]\n\n", half_buff);
 
-	readFile(ret, buff, BUFF);
-	printf("BUFFER: %s\n", buff); // Comprobacion visual de lo que se supone que está escrito.
-	bzero(buff, BUFF);
-        
-	readFile(ret, buff, BUFF);
-	printf("BUFFER: %s\n", buff); // Comprobacion visual de lo que se supone que está escrito.
+	// Escribir un fichero byte a byte.
+	ret = createFile("sbuff.txt");
+	if (ret == -1)
+		printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "persistent ", ANSI_COLOR_RED, "EXISTS\n", ANSI_COLOR_RESET);
+	else if (ret == -2)
+		printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "persistent ", ANSI_COLOR_RED, "FAIL CREAT\n", ANSI_COLOR_RESET);
+	ret = openFile("sbuff.txt");
+	if (ret == -1)
+		printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "persistent ", ANSI_COLOR_RED, "BAD_OPEN\n", ANSI_COLOR_RESET);
+	for (int i = 0; i < 2048; i++) {
+            writeFile(ret, blocks[4], 1);
+        }
+
+	// Leer un fichero byte a byte.
+	ret = openFile("buff.txt");
+	if (ret == -1)
+		printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "persistent ", ANSI_COLOR_RED, "BAD_OPEN\n", ANSI_COLOR_RESET);
+	printf("\n\nBLOQUE SENCILLO: [");
+	for (int i = 0; i < 2048; i++) {
+		readFile(ret, buff, 1);
+		printf("%s", buff);
+		bzero(buff, BUFF);
+	}
+	printf("]\n\n");
 
 	return 0;
 }

@@ -19,6 +19,9 @@
 #define CRC_SB 0
 #define CRC_FILE 1
 
+#define SUB_BLOCKS 2 // Numero de sub-bloques por bloque.
+#define SUB_BLOCK_SIZE (BLOCK_SIZE/SUB_BLOCKS) - 1 // Tamaño de la sección de datos de un sub-bloque.
+
 /******************************************************************************
  *                            ESTRUCTURAS EN DISCO                            *
  ******************************************************************************/
@@ -55,7 +58,7 @@ typedef struct {
 
 // Estructura para almacenar un sub-bloque de datos.
 typedef struct {
-    char data[(MAX_FILE_SIZE/2) - 1];
+    char data[SUB_BLOCK_SIZE];
     char next;
 } block_t;
 
