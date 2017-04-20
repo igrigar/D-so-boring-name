@@ -3,7 +3,7 @@
 
 INCLUDEDIR=./include
 CC=gcc
-CFLAGS=-g -Wall -Werror -lz -I$(INCLUDEDIR)
+CFLAGS=-g -Wall -Werror -std=gnu11 -lz -I$(INCLUDEDIR)
 AR=ar
 MAKE=make
 

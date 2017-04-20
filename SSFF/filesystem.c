@@ -26,18 +26,22 @@
  */
 int mkFS(long deviceSize)
 {
-	// Get size of the file.
+	// Obtenirndo tamaño de disco.
 	FILE *disk = fopen(DEVICE_IMAGE, "r");
 	if (disk == NULL) return -1; // Error abriendo disco.
 	fseek(disk, 0L, SEEK_END);
-	if (ftell(disk) > deviceSize) return -1; // SFF mayor que tamaño disco.
+	long diskSize = ftell(disk); // Obtenemos el tamaño de disco.
 	fclose(disk); // Ceramos el fichero, ya no es necesario.
+
+	if (diskSize < deviceSize) return -1; // SFF mayor que tamaño disco.
+	if (deviceSize < 5 * BLOCK_SIZE) return -1; // Tamaño de SFF insufuciente.
 
 	// Formateamos el disco.
 	char b0[BLOCK_SIZE];
 	bzero(b0, BLOCK_SIZE);
+
 	for (int i = 0; i < (deviceSize/BLOCK_SIZE); i++)
-	if (bwrite(DEVICE_IMAGE, i, b0) == -1) return -1; // Error formateo.
+		if (bwrite(DEVICE_IMAGE, i, b0) == -1) return -1; // Error formateo.
 
 	// Creamos superbloque.
 	superBlock = malloc(sizeof(sb_t));
@@ -47,19 +51,12 @@ int mkFS(long deviceSize)
 	superBlock[0].firstInode = 3;
 	superBlock[0].dataNum = (deviceSize/BLOCK_SIZE) - 5;
 	superBlock[0].firstData = 5;
+	superBlock[0].crc = 3405693759;
 	superBlock[0].devSize = deviceSize;
 
-	// Gestión del mapa de memoria.
-	mmap = malloc(sizeof(mmap_t));
-
-	bzero(mmap->iNode, MAX_INODO);
-	bzero(mmap->data, MAX_DATA);
-	bzero(mmap->padding, PADDING_MMAP);
-
-	// Reservamos memoria para los i-nodos.
-	inodes = malloc(sizeof(inode_t) * MAX_INODO);
-	// Limpiamos la estructura de i-nodos.
-	for (int i = 0; i < MAX_INODO; i++) bzero(&(inodes[i]), sizeof(inode_t));
+	/* En las diapositivas/ejercicios crea las estructuras de i-nodos y mapa de
+	 * memoria y las pone a 0. Puesto que el disco ha sido formateado
+	 * anteriormente en esta función, ese paso ya no es necesario. */
 
 	// Guardamos todo en disco.
 	if (unmountFS() == -1) return -1;
@@ -75,37 +72,35 @@ int mountFS(void)
 {
 	char buffer[BLOCK_SIZE];
 
-	// Reservar toda la memoria para superbloque.
+	// Reservar toda la memoria para superbloque, mapa de memoria e i-nodos.
 	superBlock = malloc(sizeof(sb_t));
+	mmap = malloc(sizeof(mmap_t));
+	inodes = malloc(sizeof(inode_t) * MAX_INODO);
 
 	// Leer superbloque.
 	if (bread(DEVICE_IMAGE, 1, buffer) == -1) return -1;
-	sb_t *sb = (sb_t *) buffer;
-	superBlock[0] = *sb;
-
-	// Reservar memoria para el mapa de memoria.
-	mmap = malloc(sizeof(mmap_t));
+	sb_t *sb = (sb_t *) buffer; // Transformamos el buffer en un 'objeto' sb_t.
+	superBlock[0] = *sb; // Asignamos el super bloque a su variable final.
 
 	// Leer mapa memoria.
 	if (bread(DEVICE_IMAGE, 2,  buffer) == -1) return -1;
+	mmap_t *map = (mmap_t *) buffer; // Transformamos el buffer en un 'objeto' mmap_t.
+	mmap[0] = *map; // Asignamos el mapa de memoria a su variable final.
 
-	mmap_t *map = (mmap_t *) buffer;
-	mmap[0] = *map;
-
-	// Reservar memoria para i-nodos.
-	inodes = malloc(sizeof(inode_t) * MAX_INODO);
 	// Leer i-nodos.
 	int node = 0;
 	for (int i = 0; i < ((superBlock[0].inodeNum * sizeof(inode_t))/BLOCK_SIZE); i++)
 		if (bread(DEVICE_IMAGE, (i + superBlock[0].firstInode), buffer) == -1) return -1;
-		else {
+		else
 			for (int j = 0; j < 32; j++, node++) {
 				char newINode[sizeof(inode_t)]; // Buffer que contiene el i-nodo.
 				memcpy(newINode, buffer + (sizeof(inode_t) * j), sizeof(inode_t)); // Copiamos un i-nodo.
 				inode_t *inode = (inode_t *) newINode; // Convertimos a estrucutura i-nodo.
 				inodes[node] = *inode;
 			}
-		}
+
+	// Comprobamos la integridad.
+	if (checkFS() == -1) return -1;
 
 	// Limpiar tabla de ficheros abiertos.
 	for (int i = 0; i < MAX_OPEN_FILES; i++) {
@@ -122,8 +117,6 @@ int mountFS(void)
  */
 int unmountFS(void)
 {
-	// Escribiendo superbloque.
-	if (bwrite(DEVICE_IMAGE, 1, (char *) superBlock) == -1) return -1;
 	// Escribiendo mapa de memoria.
 	if (bwrite(DEVICE_IMAGE, 2, (char *) mmap) == -1) return -1;
 
@@ -132,7 +125,16 @@ int unmountFS(void)
 		if (bwrite(DEVICE_IMAGE, (i + superBlock[0].firstInode),
 			((char *) inodes + (i * BLOCK_SIZE))) == -1) return -1;
 
+	// Calcular en nuevo crc.
+	superBlock[0].crc = computeCRC(-1, CRC_SB);
+
+	// Escribiendo superbloque.
+	if (bwrite(DEVICE_IMAGE, 1, (char *) superBlock) == -1) return -1;
+
 	// Liberar las estructuras de memoria.
+	free(superBlock);
+	free(mmap);
+	free(inodes);
 
 	return 0;
 }
@@ -144,7 +146,10 @@ int unmountFS(void)
 int createFile(char *fileName)
 {
 	if (namei(fileName) != -1) return -1; // El fichero ya existe.
+
+	// Intentamos reservar un i-nodo y un bloque de datos.
 	int i = ialloc(), b = balloc();
+
 	if (i == -1) return -2; // No hay mas espacio libre.
 	if (b == -1) return -2; // No hay mas espacio libre.
 
@@ -153,6 +158,7 @@ int createFile(char *fileName)
 	strcpy(inodes[i].name, fileName);
 	inodes[i].size = 0;
 	inodes[i].firstBlock = b;
+	inodes[i].crc = 0;
 
 	return 0;
 }
@@ -167,8 +173,25 @@ int removeFile(char *fileName)
 	if (i == -1) return -1; // El fichero no existe.
 
 	if (ifree(i) == -1) return -2;
-	if (bfree(inodes[i].firstBlock) == -1) return -2;
-	// Si existiese un segundo bloque de datos eliminarlo.
+
+	// Liberando todos los bloques de memoria asociados al fichero.
+	char block[BLOCK_SIZE], subBlock[BLOCK_SIZE/2];
+	int nextSB = inodes[i].firstBlock; // Primer bloque de i-nodos.
+
+	while (nextSB != -1) {
+		if (bfree(nextSB) == -1) return -1; // Liberamos el sub-bloque actual.
+
+		if (bread(DEVICE_IMAGE, i/2 + superBlock[0].firstData, block) == -1)
+			return -1;
+
+		int offset = (nextSB%2) * sizeof(block_t);
+		strncpy(subBlock, (char *) block + offset, sizeof(block_t));
+
+		block_t *sb;
+		sb = (block_t *) subBlock;
+		nextSB = sb->next;
+	}
+
 	return 0;
 }
 
@@ -181,17 +204,20 @@ int openFile(char *fileName)
 	int i = namei(fileName);
 	if (i == -1) return -1; // El fichero no existe.
 
-	// Buscamos entrada libre en tabla ficheros abiertos.
-	// Comprobamos si el fichero ya está abierto.
+	// Comprobamos la integridad.
+	if (checkFile(fileName) == -1) return -2;
+
+	// Buscamos entrada libre en tabla ficheros abiertos y comprobamos si el
+	// fichero ya está abierto.
 	int pos = -1;
 	for (int j = 0; j < MAX_OPEN_FILES; j++)
 		if (openFiles[j][0] == -1 && pos == -1) pos = j;
 		else if (openFiles[j][0] == i) return -2; // fichero ya abierto.
 
-	if (pos != -1) {
+	if (pos != -1) { // Fichero no abierto y posición libre encontrada.
 		openFiles[pos][0] = i; // Damos el valor del i-nodo.
 		openFiles[pos][1] = 0;
-		return pos;
+		return pos; // Descriptor de fichero->índice de tabla de ficheros abiertos.
 	}
 
 	// No se pueden abrir mas ficheros.
@@ -356,6 +382,10 @@ int writeFile(int fileDescriptor, void *buffer, int numBytes)
 		openFiles[fileDescriptor][1] += numBytes;
 	}
 
+        // Guardamos el nuevo CRC.
+        inodes[openFiles[fileDescriptor][0]].crc = 
+            computeCRC(openFiles[fileDescriptor][0], CRC_FILE);
+
 	return numBytes;
 }
 
@@ -394,7 +424,8 @@ int lseekFile(int fileDescriptor, int whence, long offset)
  */
 int checkFS(void)
 {
-	return -2;
+	if (superBlock[0].crc != computeCRC(-1, CRC_SB)) return -1;
+	return 0;
 }
 
 /*
@@ -403,7 +434,12 @@ int checkFS(void)
  */
 int checkFile(char *fileName)
 {
-	return -2;
+	int i = namei(fileName);
+	if (i == -1) return -2; // Fichero no existe.
+
+	if (inodes[i].crc != computeCRC(i, CRC_FILE)) return -1;
+
+	return 0;
 }
 
 
@@ -431,10 +467,10 @@ int ialloc() {
 	for (int i = 0; i < superBlock[0].inodeNum; i++) // Recorrer todo el mapa de i-nodos.
 		if (mmap->iNode[i] == 0) { // i-nodo libre encontrado.
 			mmap->iNode[i] = 1; // Marcar i-nodo como ocupado.
-
 			return i;
 		}
 
+	// No hay i-nodos libres.
 	return -1;
 }
 
@@ -444,13 +480,9 @@ int ialloc() {
  */
 int ifree(int i) {
 	if (i > superBlock[0].inodeNum || i < 0) return -1; // Número i-nodo errneo.
-	mmap->iNode[i] = 0; // Marcar i-nodo como libre.
 
-	// "Limpiar" el contenido del i-nodo.
-	//inodes[i].inode = -1;
-	//inodes[i].size = -1;
-	//inodes[i].firstBlock = -1;
-	bzero(inodes[i].name, FILE_NAME_SIZE);
+	mmap->iNode[i] = 0; // Marcar i-nodo como libre.
+	bzero(inodes[i].name, FILE_NAME_SIZE); // "Limpiar" el contenido del i-nodo.
 
 	return 0;
 }
@@ -462,32 +494,24 @@ int ifree(int i) {
 int balloc() {
 	for (int i = 0; i < (superBlock[0].dataNum * 2); i++) // Recorrer todo el mapa de datos.
 		if (mmap->data[i] == 0) {
-			mmap->data[i] = 1;
-
-			// Proceso de reseteo del sub-bloque.
+			// Proceso de limpieza del sub-bloque.
 			// Obtenemos el bloque.
 			char block[BLOCK_SIZE];
 			if (bread(DEVICE_IMAGE, (i/2 + superBlock[0].firstData), block) == -1) return -1;
 
-			// Creamos las variables apropiadas.
-			char subBlock[BLOCK_SIZE/2];
-			block_t *sb;
-
 			// Calculamos en que sub-bloque se encuentra.
 			int offset = (i%2) * sizeof(block_t);
 
-			// Obtenemos el sub-bloque.
-			strncpy(subBlock, (char *) block + offset, sizeof(block_t));
-			sb = (block_t *) subBlock;
+			// Llenamos la sección de memoria correspondiente al sub-bloque con -1s.
+			memset((char *) block + offset, -1, BLOCK_SIZE/2);
 
-			// Establecemos los valores "por defecto".
-			memset(sb->data, -1, ((BLOCK_SIZE/2) - 1));
-			sb->next = -1;
-
-			// Re-componemos el bloque y lo escribimos a disco.
-			strncpy((char *) block + offset, (char *) sb, sizeof(block_t));
+			// Escribimos el bloque de memoria modificado.
 			if (bwrite(DEVICE_IMAGE, (i/2 + superBlock[0].firstData), block) == -1)
 				return -1;
+
+			// El bloque de datos ha sido limpiado correctamente, por lo que se
+			// puede marcar como 'ocupado'.
+			mmap->data[i] = 1;
 
 			return i;
 		}
@@ -500,21 +524,8 @@ int balloc() {
  */
 int bfree(int i) {
 	if (i > (superBlock[0].dataNum * 2) || i < 0) return -1; // Número i-nodo errneo.
+
 	mmap->data[i] = 0; // Marcar i-nodo como libre.
-
-	// Buscamos el segundo bloque si lo hay.
-	char block[BLOCK_SIZE];
-	if (bread(DEVICE_IMAGE, i/2 + superBlock[0].firstData, block) == -1) return -1;
-
-	char subBlock[BLOCK_SIZE/2];
-	block_t *sb;
-
-	int offset = (i%2) * sizeof(block_t);
-	strncpy(subBlock, (char *) block + offset, sizeof(block_t));
-	sb = (block_t *) subBlock;
-
-	if (sb->next != -1) // Existe el siguiente bloque.
-		if (bfree(sb->next) == -1) return -1; // Recursivo == escalable.
 
 	return 0;
 }
@@ -565,8 +576,7 @@ uint32_t computeCRC(int i, int type) {
 			strncpy((char *) buffer, block, BLOCK_SIZE); // Lo copiamos al nuevo buffer.
 
 			// Obtenemos los i-nodos.
-			for (int i = 0; 
-					i < (superBlock[0].inodeNum * sizeof(inode_t)) /BLOCK_SIZE;
+			for (int i = 0; i < (superBlock[0].inodeNum * sizeof(inode_t)) /BLOCK_SIZE;
 					i++) {
 				if (bread(DEVICE_IMAGE, i + superBlock[0].firstInode, block) == -1)
 					return -1; // Leemos el bloque de i-nodos.
@@ -578,7 +588,6 @@ uint32_t computeCRC(int i, int type) {
 			return crc;
 		case CRC_FILE:
 			if (i < 0 || i >= MAX_INODO) return -1; // i-nodo erróneo.
-
 			// Reservamos la memoria.
 			size = inodes[i].size;
 			buffer = malloc(size);
@@ -594,7 +603,7 @@ uint32_t computeCRC(int i, int type) {
 			strncpy(subBlock, (char *) block + offset, sizeof(block_t));
 			sb = (block_t *) subBlock;
 
-			if (sb->next == -1) { // Solo un sub-bloque.
+			if (size < BLOCK_SIZE/2) { // Solo un sub-bloque.
 				strncpy((char *) buffer, sb->data, size);
 				crc = CRC32((const unsigned char *) buffer, size);
 				free(buffer);

@@ -12,3 +12,4 @@ int ifree(int i);
 int balloc();
 int bfree(int b);
 int bmap(int i, int offset);
+uint32_t computeCRC(int i, int type);
