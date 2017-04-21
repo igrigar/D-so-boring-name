@@ -16,6 +16,7 @@
 #define ANSI_COLOR_RED     "\x1b[31m"
 #define ANSI_COLOR_GREEN   "\x1b[32m"
 #define ANSI_COLOR_BLUE   "\x1b[34m"
+#define ANSI_COLOR_YELLOW  "\x1b[33m"
 
 #define N_BLOCKS	50						// Number of blocks in the device
 #define DEV_SIZE 	N_BLOCKS * BLOCK_SIZE	// Device size, in bytes
@@ -196,7 +197,7 @@ char blocks[5][2048] = {
 int main() {
 	setbuf(stdout, NULL);
 
-	int ret, loopRet = 0;
+	int ret, written, readed, loopRet = 0;
 	char half_buff[HBUFF], buff[BUFF], full_buff[FBUFF];
 
 	// Limpiamos los buffers antes de empezar.
@@ -325,6 +326,11 @@ int main() {
 	if (loopRet == 0)
 		printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "removeFile ", ANSI_COLOR_GREEN, "SUCCESS\n", ANSI_COLOR_RESET);
 
+	// Borramos un fichero que antes existia pero ya no.     <- PONERLO EN LA LÍNEA 332, TRAS "ABRIR UN FICHERO QUE ANTES EXISTIA PERO YA NO"
+	ret = removeFile("test_0.txt");
+	if (ret == -1)
+		printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "old ", ANSI_COLOR_RED, "BAD_RMV\n", ANSI_COLOR_RESET);
+
 	// Abrir un fichero que antes existia pero ya no.
 	ret = openFile("test_0.txt");
 	if (ret == -1)
@@ -333,48 +339,110 @@ int main() {
 	// Creamos dos ficheros persistentes. 
 	ret = createFile("fbuff.txt");
 	if (ret == -1)
-		printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "persistent ", ANSI_COLOR_RED, "EXISTS\n", ANSI_COLOR_RESET);
+		printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "fbuff.txt ", ANSI_COLOR_RED, "EXISTS\n", ANSI_COLOR_RESET);
 	else if (ret == -2)
-		printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "persistent ", ANSI_COLOR_RED, "FAIL CREAT\n", ANSI_COLOR_RESET);
+		printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "fbuff.txt ", ANSI_COLOR_RED, "FAIL CREAT\n", ANSI_COLOR_RESET);
 	ret = createFile("buff.txt");
 	if (ret == -1)
-		printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "persistent ", ANSI_COLOR_RED, "EXISTS\n", ANSI_COLOR_RESET);
+		printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "buff.txt ", ANSI_COLOR_RED, "EXISTS\n", ANSI_COLOR_RESET);
 	else if (ret == -2)
-		printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "persistent ", ANSI_COLOR_RED, "FAIL CREAT\n", ANSI_COLOR_RESET);
+		printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "buff.txt ", ANSI_COLOR_RED, "FAIL CREAT\n", ANSI_COLOR_RESET);
 
 	// Escribimos un fichero entero en una sola llamada..
 	ret = openFile("fbuff.txt");
 	if (ret == -1)
-		printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "persistent ", ANSI_COLOR_RED, "BAD_OPEN\n", ANSI_COLOR_RESET);
-	writeFile(ret, blocks[0], FBUFF); // DEBERIA ESTAR EN EL DISCO.
+		printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "fbuff.txt ", ANSI_COLOR_RED, "BAD_OPEN\n", ANSI_COLOR_RESET);
+	written = writeFile(ret, blocks[0], FBUFF); // DEBERIA ESTAR EN EL DISCO.
+	if (written == -1)
+		printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "fbuff.txt ", ANSI_COLOR_RED, "BAD_WRITE\n", ANSI_COLOR_RESET);
+	if (written != FBUFF)
+		printf("%s%s%s%s%s%d\n", ANSI_COLOR_BLUE, "fbuff.txt ", ANSI_COLOR_YELLOW, "WARNING WRITE ", ANSI_COLOR_RESET, written);
+
+	// Intentamos escribir más de lo permitido.
+	written = writeFile(ret, blocks[0], FBUFF); // DEBERIA ESTAR EN EL DISCO.
+	if (written == -1)
+		printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "fbuff.txt ", ANSI_COLOR_RED, "BAD_WRITE MORE\n", ANSI_COLOR_RESET);
+	if (written != FBUFF)
+		printf("%s%s%s%s%s%d\n", ANSI_COLOR_BLUE, "fbuff.txt ", ANSI_COLOR_YELLOW, "WARNING WRITE MORE ", ANSI_COLOR_RESET, written);
+	
+	// Intentamos escribir un número negativo de bytes.
+	written = writeFile(ret, blocks[0], -1); // DEBERIA ESTAR EN EL DISCO.
+	if (written == -1)
+		printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "fbuff.txt ", ANSI_COLOR_RED, "BAD_WRITE NEGATIVE\n", ANSI_COLOR_RESET);
+	if (written != -1)
+		printf("%s%s%s%s%s%d\n", ANSI_COLOR_BLUE, "fbuff.txt ", ANSI_COLOR_YELLOW, "WARNING WRITE NEGATIVE ", ANSI_COLOR_RESET, written);
 
 	// Sobreescribimos partes pequeñas.
 	if (lseekFile(ret, FS_SEEK_BEGIN, 0) == -1)
 		printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "SEEK_BEGIN ", ANSI_COLOR_RED, "FAIL\n", ANSI_COLOR_RESET);
-	writeFile(ret, blocks[3], SBUFF);
+	written = writeFile(ret, blocks[3], SBUFF);
+	if (written == -1)
+		printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "fbuff.txt ", ANSI_COLOR_RED, "BAD_WRITE SEEK 0\n", ANSI_COLOR_RESET);
+	if (written != SBUFF)
+		printf("%s%s%s%s%s%d\n", ANSI_COLOR_BLUE, "fbuff.txt ", ANSI_COLOR_YELLOW, "WARNING WRITE SEEK 0 ", ANSI_COLOR_RESET, written);
+
 	if (lseekFile(ret, FS_SEEK_CUR, SBUFF) == -1)
 		printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "SEEK_CUR 128 ", ANSI_COLOR_RED, "FAIL\n", ANSI_COLOR_RESET);
-	writeFile(ret, blocks[3], SBUFF);
+	written = writeFile(ret, blocks[3], SBUFF);
+	if (written == -1)
+		printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "fbuff.txt ", ANSI_COLOR_RED, "BAD_WRITE SEEK 128\n", ANSI_COLOR_RESET);
+	if (written != SBUFF)
+		printf("%s%s%s%s%s%d\n", ANSI_COLOR_BLUE, "fbuff.txt ", ANSI_COLOR_YELLOW, "WARNING WRITE SEEK 128 ", ANSI_COLOR_RESET, written);
 	
 	if (lseekFile(ret, FS_SEEK_CUR, 1023) == -1)
 		printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "SEEK_CUR 1023 ", ANSI_COLOR_RED, "FAIL\n", ANSI_COLOR_RESET);
-	writeFile(ret, blocks[3], SBUFF);
+	written = writeFile(ret, blocks[3], SBUFF);
+	if (written == -1)
+		printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "fbuff.txt ", ANSI_COLOR_RED, "BAD_WRITE SEEK 1023\n", ANSI_COLOR_RESET);
+	if (written != SBUFF)
+		printf("%s%s%s%s%s%d\n", ANSI_COLOR_BLUE, "fbuff.txt ", ANSI_COLOR_YELLOW, "WARNING WRITE SEEK 1023 ", ANSI_COLOR_RESET, written);
 	closeFile(ret);
 
 	// Escribimos un fichero entero 'a trozos'.
 	ret = openFile("buff.txt");
 	if (ret == -1)
-		printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "persistent ", ANSI_COLOR_RED, "BAD_OPEN\n", ANSI_COLOR_RESET);
-	writeFile(ret, blocks[1], BUFF); // DEBERIA ESTAR EN EL DISCO.
-	writeFile(ret, blocks[2], BUFF); // DEBERIA ESTAR EN EL DISCO.
+		printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "buff.txt ", ANSI_COLOR_RED, "BAD_OPEN\n", ANSI_COLOR_RESET);
+	written = writeFile(ret, blocks[1], BUFF); // DEBERIA ESTAR EN EL DISCO.
+	if (written == -1)
+		printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "buff.txt ", ANSI_COLOR_RED, "BAD_WRITE 1\n", ANSI_COLOR_RESET);
+	if (written != BUFF)
+		printf("%s%s%s%s%s%d\n", ANSI_COLOR_BLUE, "buff.txt ", ANSI_COLOR_YELLOW, "WARNING WRITE 1 ", ANSI_COLOR_RESET, written);
+
+	written = writeFile(ret, blocks[2], BUFF); // DEBERIA ESTAR EN EL DISCO.
+	if (written == -1)
+		printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "buff.txt ", ANSI_COLOR_RED, "BAD_WRITE 2\n", ANSI_COLOR_RESET);
+	if (written != BUFF)
+		printf("%s%s%s%s%s%d\n", ANSI_COLOR_BLUE, "buff.txt ", ANSI_COLOR_YELLOW, "WARNING WRITE 2 ", ANSI_COLOR_RESET, written);
 
 
 	// Leemos el fichero entero y comprobamos si se corresponde con lo escrito.
 	// en una sola llamada.
 	ret = openFile("fbuff.txt");
 	if (ret == -1)
-		printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "persistent ", ANSI_COLOR_RED, "BAD_OPEN\n", ANSI_COLOR_RESET);
-	readFile(ret, full_buff, FBUFF);
+		printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "fbuff.txt ", ANSI_COLOR_RED, "BAD_OPEN\n", ANSI_COLOR_RESET);
+	readed = readFile(ret, full_buff, FBUFF);
+	if (readed == -1)
+		printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "fbuff.txt ", ANSI_COLOR_RED, "BAD_READ FULL\n", ANSI_COLOR_RESET);
+	if (readed != FBUFF)
+		printf("%s%s%s%s%s%d\n", ANSI_COLOR_BLUE, "fbuff.txt ", ANSI_COLOR_YELLOW, "WARNING READ FULL ", ANSI_COLOR_RESET, readed);
+	printf("\nBLOQUE ENTERO: [%s]\n\n", full_buff);
+	bzero(buff, FBUFF);
+
+	// Intentamos leer más que el límite del fichero.
+	readed = readFile(ret, full_buff, FBUFF);
+	if (readed == -1)
+		printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "fbuff.txt ", ANSI_COLOR_RED, "BAD_READ MORE\n", ANSI_COLOR_RESET);
+	if (readed != FBUFF)
+		printf("%s%s%s%s%s%d\n", ANSI_COLOR_BLUE, "fbuff.txt ", ANSI_COLOR_YELLOW, "WARNING READ MORE ", ANSI_COLOR_RESET, readed);
+	printf("\nBLOQUE EXTRA: [%s]\n\n", full_buff);
+	bzero(buff, FBUFF);
+
+	// Intentamos escribir un número negativo de bytes.
+	readed = readFile(ret, full_buff, -1);
+	if (readed == -1)
+		printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "fbuff.txt ", ANSI_COLOR_RED, "BAD_READ NEGATIVE\n", ANSI_COLOR_RESET);
+	if (readed != FBUFF)
+		printf("%s%s%s%s%s%d\n", ANSI_COLOR_BLUE, "fbuff.txt ", ANSI_COLOR_YELLOW, "WARNING READ NEGATIVE ", ANSI_COLOR_RESET, readed);
 	printf("\nBLOQUE ENTERO: [%s]\n\n", full_buff);
 	bzero(buff, FBUFF);
 
@@ -399,62 +467,86 @@ int main() {
 	// Leemos trozos de un fichero guardado en disco.
 	ret = openFile("fbuff.txt");
 	if (ret == -1)
-		printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "persistent ", ANSI_COLOR_RED, "BAD_OPEN\n", ANSI_COLOR_RESET);
-	readFile(ret, half_buff, HBUFF);
+		printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "fbuff.txt ", ANSI_COLOR_RED, "BAD_OPEN\n", ANSI_COLOR_RESET);
+	readed = readFile(ret, half_buff, HBUFF);
+	if (readed == -1)
+		printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "fbuff.txt ", ANSI_COLOR_RED, "BAD_READ HALF\n", ANSI_COLOR_RESET);
+	if (readed != HBUFF)
+		printf("%s%s%s%s%s%d\n", ANSI_COLOR_BLUE, "fbuff.txt ", ANSI_COLOR_YELLOW, "WARNING READ HALF ", ANSI_COLOR_RESET, readed);
 	printf("MEDIO BLOQUE: [%s]\n\n", half_buff);
 	bzero(half_buff, HBUFF);
 
 	if (lseekFile(ret, FS_SEEK_CUR, SBUFF) == -1)
 		printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "SEEK_CUR 128 ", ANSI_COLOR_RED, "FAIL\n", ANSI_COLOR_RESET);
-	readFile(ret, half_buff, SBUFF);
+	readed = readFile(ret, half_buff, SBUFF);
+	if (readed == -1)
+		printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "fbuff.txt ", ANSI_COLOR_RED, "BAD_READ SMALL\n", ANSI_COLOR_RESET);
+	if (readed != SBUFF)
+		printf("%s%s%s%s%s%d\n", ANSI_COLOR_BLUE, "fbuff.txt ", ANSI_COLOR_YELLOW, "WARNING READ SMALL ", ANSI_COLOR_RESET, readed);
 	printf("CUARTO BLOQUE: [%s]\n\n", half_buff);
 
 	// Escribir un fichero byte a byte.
 	ret = createFile("sbuff.txt");
 	if (ret == -1)
-		printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "persistent ", ANSI_COLOR_RED, "EXISTS\n", ANSI_COLOR_RESET);
+		printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "sbuff.txt ", ANSI_COLOR_RED, "EXISTS\n", ANSI_COLOR_RESET);
 	else if (ret == -2)
-		printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "persistent ", ANSI_COLOR_RED, "FAIL CREAT\n", ANSI_COLOR_RESET);
+		printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "sbuff.txt ", ANSI_COLOR_RED, "FAIL CREAT\n", ANSI_COLOR_RESET);
 	ret = openFile("sbuff.txt");
 	if (ret == -1)
-		printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "persistent ", ANSI_COLOR_RED, "BAD_OPEN\n", ANSI_COLOR_RESET);
+		printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "sbuff.txt ", ANSI_COLOR_RED, "BAD_OPEN\n", ANSI_COLOR_RESET);
 	for (int i = 0; i < 2048; i++) {
-            writeFile(ret, blocks[4], 1);
-        }
+		written = writeFile(ret, blocks[4], 1);
+		if (written == -1)
+			printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "buff.txt ", ANSI_COLOR_RED, "BAD_WRITE BYTE\n", ANSI_COLOR_RESET);
+		if (written != 1)
+			printf("%s%s%s%s%s%d\n", ANSI_COLOR_BLUE, "buff.txt ", ANSI_COLOR_YELLOW, "WARNING WRITE BYTE ", ANSI_COLOR_RESET, written);
+	}
 
 	// Leer un fichero byte a byte.
 	ret = openFile("buff.txt");
 	if (ret == -1)
-		printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "persistent ", ANSI_COLOR_RED, "BAD_OPEN\n", ANSI_COLOR_RESET);
+		printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "buff.txt ", ANSI_COLOR_RED, "BAD_OPEN\n", ANSI_COLOR_RESET);
 	printf("\n\nBLOQUE SENCILLO: [");
 	for (int i = 0; i < 2048; i++) {
-		readFile(ret, buff, 1);
+		readed = readFile(ret, buff, 1);
+		if (readed == -1)
+			printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "fbuff.txt ", ANSI_COLOR_RED, "BAD_READ BYTE\n", ANSI_COLOR_RESET);
+		if (readed != 1)
+			printf("%s%s%s%s%s%d\n", ANSI_COLOR_BLUE, "fbuff.txt ", ANSI_COLOR_YELLOW, "WARNING READ BYTE ", ANSI_COLOR_RESET, readed);
 		printf("%s", buff);
 		bzero(buff, BUFF);
 	}
 	printf("]\n\n");
 
-	
+	// Intentamos leer de ficheros con un descriptor fuera de rango.
+	ret = -1;
+	if (readFile(ret, half_buff, SBUFF) == -1)
+		printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "fd=-1 ", ANSI_COLOR_RED, "BAD_READ\n", ANSI_COLOR_RESET);
+	ret = 64;
+	if (readFile(ret, half_buff, SBUFF) == -1)
+		printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "fd=64 ", ANSI_COLOR_RED, "BAD_READ\n", ANSI_COLOR_RESET);
+
+	// Intentamos escribir en ficheros con un descriptor fuera de rango.
+	ret = -1;
+	if (writeFile(ret, blocks[1], BUFF) == -1)
+		printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "fd=-1 ", ANSI_COLOR_RED, "BAD_WRITE\n", ANSI_COLOR_RESET);
+	ret = 64;
+	if (writeFile(ret, blocks[1], BUFF) == -1)
+		printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "fd=64 ", ANSI_COLOR_RED, "BAD_WRITE\n", ANSI_COLOR_RESET);
+
 	//mkFS más grande
-  ret = mkFS(DEV_SIZE+1);
+	ret = mkFS(DEV_SIZE+1);
 	if(ret != 0) {
 		printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "mkFS muy grande ", ANSI_COLOR_RED, "FAILED\n", ANSI_COLOR_RESET);
 	}
 	else{ printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "mkFS muy grande ", ANSI_COLOR_GREEN, "SUCCESS\n", ANSI_COLOR_RESET);}
 
-	
-	//mkFS con tamaÃ±o más pequeño que el device size, fallo al intentar crear un archivo
-   ret = mkFS(5000);
+	//mkFS con tamaño más pequeño que el device size, fallo al intentar crear un archivo
+	ret = mkFS(5000);
 	if(ret != 0) {
 		printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "mkFS muy pequeño ", ANSI_COLOR_RED, "FAILED\n", ANSI_COLOR_RESET);
 	}
 	else{ printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "mkFS muy pequeño ", ANSI_COLOR_GREEN, "SUCCESS\n", ANSI_COLOR_RESET);}
 
-	
-   // Borramos un fichero que antes existia pero ya no.     <- PONERLO EN LA LÍNEA 332, TRAS "ABRIR UN FICHERO QUE ANTES EXISTIA PERO YA NO"
-	ret = removeFile("test_0.txt");
-	if (ret == -1)
-		printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "old ", ANSI_COLOR_RED, "BAD_CLOSE\n", ANSI_COLOR_RESET);
-	
 	return 0;
 }
