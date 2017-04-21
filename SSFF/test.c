@@ -364,7 +364,7 @@ int main() {
 		printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "fbuff.txt ", ANSI_COLOR_RED, "BAD_WRITE MORE\n", ANSI_COLOR_RESET);
 	if (written != FBUFF)
 		printf("%s%s%s%s%s%d\n", ANSI_COLOR_BLUE, "fbuff.txt ", ANSI_COLOR_YELLOW, "WARNING WRITE MORE ", ANSI_COLOR_RESET, written);
-	
+
 	// Intentamos escribir un número negativo de bytes.
 	written = writeFile(ret, blocks[0], -1); // DEBERIA ESTAR EN EL DISCO.
 	if (written == -1)
@@ -441,7 +441,7 @@ int main() {
 	readed = readFile(ret, full_buff, -1);
 	if (readed == -1)
 		printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "fbuff.txt ", ANSI_COLOR_RED, "BAD_READ NEGATIVE\n", ANSI_COLOR_RESET);
-	if (readed != FBUFF)
+	if (readed != -1)
 		printf("%s%s%s%s%s%d\n", ANSI_COLOR_BLUE, "fbuff.txt ", ANSI_COLOR_YELLOW, "WARNING READ NEGATIVE ", ANSI_COLOR_RESET, readed);
 	printf("\nBLOQUE ENTERO: [%s]\n\n", full_buff);
 	bzero(buff, FBUFF);
@@ -494,7 +494,7 @@ int main() {
 	ret = openFile("sbuff.txt");
 	if (ret == -1)
 		printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "sbuff.txt ", ANSI_COLOR_RED, "BAD_OPEN\n", ANSI_COLOR_RESET);
-	for (int i = 0; i < 2048; i++) {
+	for (int i = 0; i < 2046; i++) {
 		written = writeFile(ret, blocks[4], 1);
 		if (written == -1)
 			printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "buff.txt ", ANSI_COLOR_RED, "BAD_WRITE BYTE\n", ANSI_COLOR_RESET);
@@ -507,7 +507,7 @@ int main() {
 	if (ret == -1)
 		printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "buff.txt ", ANSI_COLOR_RED, "BAD_OPEN\n", ANSI_COLOR_RESET);
 	printf("\n\nBLOQUE SENCILLO: [");
-	for (int i = 0; i < 2048; i++) {
+	for (int i = 0; i < 2046; i++) {
 		readed = readFile(ret, buff, 1);
 		if (readed == -1)
 			printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "fbuff.txt ", ANSI_COLOR_RED, "BAD_READ BYTE\n", ANSI_COLOR_RESET);

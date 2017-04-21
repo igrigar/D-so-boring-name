@@ -249,11 +249,12 @@ int readFile(int fileDescriptor, void *buffer, int numBytes)
 	// Descriptor de fichero no válido.
 	if (fileDescriptor >= MAX_OPEN_FILES || fileDescriptor < 0) return -1;
 	if (openFiles[fileDescriptor][0] == -1) return -1; // Fichero cerrado.
+	if (numBytes < 0) return -1; // No se lee un número negativo de bytes.
 
 	// Intentando leer más que el tamaño máximo.
-	if (numBytes + openFiles[fileDescriptor][1] >= MAX_FILE_SIZE)
+	if (numBytes + openFiles[fileDescriptor][1] >= MAX_FILE_SIZE - 2)
 		// Leemos el mayor número de bytes posible.
-		numBytes -= ((numBytes + openFiles[fileDescriptor][1]) - MAX_FILE_SIZE);
+		numBytes -= ((numBytes + openFiles[fileDescriptor][1]) - MAX_FILE_SIZE + 2);
 
 	// Obtener el bloque de memoria.
 	int blockNum = bmap(openFiles[fileDescriptor][0], openFiles[fileDescriptor][1]);
@@ -307,11 +308,12 @@ int writeFile(int fileDescriptor, void *buffer, int numBytes)
 	// Descriptor de fichero no válido.
 	if (fileDescriptor >= MAX_OPEN_FILES || fileDescriptor < 0) return -1;
 	if (openFiles[fileDescriptor][0] == -1) return -1; // Fichero cerrado.
+	if (numBytes < 0) return -1; // No se escribe un número negativo de bytes.
 
 	// Intentando escribir más que el tamaño máximo.
-	if (numBytes + openFiles[fileDescriptor][1] > MAX_FILE_SIZE)
+	if (numBytes + openFiles[fileDescriptor][1] > MAX_FILE_SIZE - 2)
 		// Escribimos el mayor número de bytes posible.
-		numBytes -= ((numBytes + openFiles[fileDescriptor][1]) - MAX_FILE_SIZE);
+		numBytes -= ((numBytes + openFiles[fileDescriptor][1]) - MAX_FILE_SIZE + 2);
 
 	// Obtener el bloque de memoria.
 	int blockNum = bmap(openFiles[fileDescriptor][0], openFiles[fileDescriptor][1]);
