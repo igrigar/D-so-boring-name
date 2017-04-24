@@ -160,38 +160,38 @@ char blocks[5][2048] = {
 	"DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD" \
 	"DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD",
 
-        "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ" \
-        "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ" \
-        "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ" \
-        "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ" \
-        "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ" \
-        "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ" \
-        "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ" \
-        "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ" \
-        "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ" \
-        "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ" \
-        "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ" \
-        "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ" \
-        "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ" \
-        "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ" \
-        "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ" \
-        "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ" \
-        "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ" \
-        "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ" \
-        "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ" \
-        "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ" \
-        "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ" \
-        "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ" \
-        "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ" \
-        "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ" \
-        "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ" \
-        "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ" \
-        "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ" \
-        "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ" \
-        "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ" \
-        "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ" \
-        "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ" \
-        "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ"
+    "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ" \
+    "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ" \
+    "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ" \
+    "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ" \
+    "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ" \
+    "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ" \
+    "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ" \
+    "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ" \
+    "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ" \
+    "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ" \
+    "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ" \
+    "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ" \
+    "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ" \
+    "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ" \
+    "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ" \
+    "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ" \
+    "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ" \
+    "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ" \
+    "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ" \
+    "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ" \
+    "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ" \
+    "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ" \
+    "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ" \
+    "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ" \
+    "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ" \
+    "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ" \
+    "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ" \
+    "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ" \
+    "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ" \
+    "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ" \
+    "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ" \
+    "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ"
 };
 
 int main() {
@@ -205,7 +205,7 @@ int main() {
 	bzero(buff, BUFF);
 	bzero(full_buff, FBUFF);
 
-	// Crear el SFF.
+	// ID 1: Crear el SFF.
 	ret = mkFS(DEV_SIZE);
 	if(ret != 0) {
 		printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "mkFS ", ANSI_COLOR_RED, "FAILED\n", ANSI_COLOR_RESET);
@@ -213,7 +213,7 @@ int main() {
 	}
 	printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "mkFS ", ANSI_COLOR_GREEN, "SUCCESS\n", ANSI_COLOR_RESET);
 
-	// Montar el sistema de ficheros.
+	// ID 2: Montar el sistema de ficheros.
 	ret = mountFS();
 	if(ret != 0) {
 		printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "mountFS ", ANSI_COLOR_RED, "FAILED\n", ANSI_COLOR_RESET);
@@ -221,7 +221,7 @@ int main() {
 	}
 	printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "mountFS ", ANSI_COLOR_GREEN, "SUCCESS\n", ANSI_COLOR_RESET);
 
-	// Creamos el número máximo de ficheros posible.
+	// ID 3: Creamos el número máximo de ficheros posible.
 	for (int i = 0; i < 64; i++) {
 		char name[16];
 		sprintf(name, "test_%d.txt", i);
@@ -237,26 +237,26 @@ int main() {
 	if (loopRet == 0)
 		printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "createFile ", ANSI_COLOR_GREEN, "SUCCESS\n", ANSI_COLOR_RESET);
 
-	// Creamos un fichero más de lo permitido.
+	// ID 4: Creamos un fichero más de lo permitido.
 	ret = createFile("bad_file");
 	if (ret == -1)
 		printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "bad_file ", ANSI_COLOR_RED, "EXISTS\n", ANSI_COLOR_RESET);
 	else if (ret == -2)
 		printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "bad_file ", ANSI_COLOR_RED, "FAIL CREAT\n", ANSI_COLOR_RESET);
 
-	// Creamos un fichero que ya existe.
+	// ID 5: Creamos un fichero que ya existe.
 	ret = createFile("test_0.txt");
 	if (ret == -1)
 		printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "dup_file ", ANSI_COLOR_RED, "EXISTS\n", ANSI_COLOR_RESET);
 	else if (ret == -2)
 		printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "dup_file ", ANSI_COLOR_RED, "FAIL CREAT\n", ANSI_COLOR_RESET);
 
-	// Abrimos un fichero que no existe.
+	// ID 6: Abrimos un fichero que no existe.
 	ret = openFile("undeclared");
 	if (ret == -1)
 		printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "undeclared ", ANSI_COLOR_RED, "BAD_OPEN\n", ANSI_COLOR_RESET);
 
-	// Abrimos el máximo numero de ficheros, los ficheros existen en el sistema.
+	// ID 7: Abrimos el máximo numero de ficheros, los ficheros existen en el sistema.
 	for (int i = 0; i < 32; i++) {
 		char name[16];
 		sprintf(name, "test_%d.txt", i);
@@ -269,17 +269,17 @@ int main() {
 	if (loopRet == 0)
 		printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "openFile ", ANSI_COLOR_GREEN, "SUCCESS\n", ANSI_COLOR_RESET);
 
-	// Abrimos un fichero mas del permitido.
+	// ID 8: Abrimos un fichero mas del permitido.
 	ret = openFile("test_50.txt");
 	if (ret == -2)
 		printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "overflow ", ANSI_COLOR_RED, "BAD_OPEN\n", ANSI_COLOR_RESET);
 
-	// Abrimos un fichero ya abierto.
+	// ID 9: Abrimos un fichero ya abierto.
 	ret = openFile("test_0.txt");
 	if (ret == -2)
 		printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "already opened ", ANSI_COLOR_RED, "BAD_OPEN\n", ANSI_COLOR_RESET);
 
-	// Cerramos un fichero no existente.
+	// ID 10: Cerramos un fichero no existente.
 	ret = closeFile(35);
 	if (ret == -1)
 		printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "overflow ", ANSI_COLOR_RED, "BAD_CLOSE\n", ANSI_COLOR_RESET);
@@ -287,7 +287,7 @@ int main() {
 	if (ret == -1)
 		printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "underflow ", ANSI_COLOR_RED, "BAD_CLOSE\n", ANSI_COLOR_RESET);
 
-	// Cerramos el máximo numero de ficheros, los ficheros existen en el sistema.
+	// ID 11: Cerramos el máximo numero de ficheros, los ficheros existen en el sistema.
 	loopRet = 0;
 	for (int i = 0; i < 32; i++) {
 		ret = closeFile(i);
@@ -299,17 +299,17 @@ int main() {
 	if (loopRet == 0)
 		printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "closeFile ", ANSI_COLOR_GREEN, "SUCCESS\n", ANSI_COLOR_RESET);
 
-	// Cerramos un archivo cerrado.
+	// ID 12: Cerramos un archivo cerrado.
 	ret = closeFile(0);
 	if (ret == -1)
 		printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "closed ", ANSI_COLOR_RED, "BAD_CLOSE\n", ANSI_COLOR_RESET);
 
-	// Borramos un archivo que no existe.
+	// ID 13: Borramos un archivo que no existe.
 	ret = removeFile("undeclared");
 	if (ret == -1)
 		printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "undeclared ", ANSI_COLOR_RED, "BAD_RMV\n", ANSI_COLOR_RESET);
 
-	// Borramos todos los archivos.
+	// ID 14: Borramos todos los archivos.
 	loopRet = 0;
 	for (int i = 0; i < 64; i++) {
 		char name[16];
@@ -326,17 +326,17 @@ int main() {
 	if (loopRet == 0)
 		printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "removeFile ", ANSI_COLOR_GREEN, "SUCCESS\n", ANSI_COLOR_RESET);
 
-	// Borramos un fichero que antes existia pero ya no.     <- PONERLO EN LA LÍNEA 332, TRAS "ABRIR UN FICHERO QUE ANTES EXISTIA PERO YA NO"
+	// ID 15: Borramos un fichero que antes existia pero ya no.
 	ret = removeFile("test_0.txt");
 	if (ret == -1)
 		printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "old ", ANSI_COLOR_RED, "BAD_RMV\n", ANSI_COLOR_RESET);
 
-	// Abrir un fichero que antes existia pero ya no.
+	// ID 16: Abrir un fichero que antes existia pero ya no.
 	ret = openFile("test_0.txt");
 	if (ret == -1)
 		printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "old ", ANSI_COLOR_RED, "BAD_OPEN\n", ANSI_COLOR_RESET);
-	
-	// Creamos dos ficheros persistentes. 
+
+	// ID 17: Creamos dos ficheros persistentes.
 	ret = createFile("fbuff.txt");
 	if (ret == -1)
 		printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "fbuff.txt ", ANSI_COLOR_RED, "EXISTS\n", ANSI_COLOR_RESET);
@@ -348,7 +348,7 @@ int main() {
 	else if (ret == -2)
 		printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "buff.txt ", ANSI_COLOR_RED, "FAIL CREAT\n", ANSI_COLOR_RESET);
 
-	// Escribimos un fichero entero en una sola llamada..
+	// ID 18: Escribimos un fichero entero en una sola llamada.
 	ret = openFile("fbuff.txt");
 	if (ret == -1)
 		printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "fbuff.txt ", ANSI_COLOR_RED, "BAD_OPEN\n", ANSI_COLOR_RESET);
@@ -358,21 +358,21 @@ int main() {
 	if (written != FBUFF)
 		printf("%s%s%s%s%s%d\n", ANSI_COLOR_BLUE, "fbuff.txt ", ANSI_COLOR_YELLOW, "WARNING WRITE ", ANSI_COLOR_RESET, written);
 
-	// Intentamos escribir más de lo permitido.
+	// ID 19: Intentamos escribir más de lo permitido.
 	written = writeFile(ret, blocks[0], FBUFF); // DEBERIA ESTAR EN EL DISCO.
 	if (written == -1)
 		printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "fbuff.txt ", ANSI_COLOR_RED, "BAD_WRITE MORE\n", ANSI_COLOR_RESET);
 	if (written != FBUFF)
 		printf("%s%s%s%s%s%d\n", ANSI_COLOR_BLUE, "fbuff.txt ", ANSI_COLOR_YELLOW, "WARNING WRITE MORE ", ANSI_COLOR_RESET, written);
 
-	// Intentamos escribir un número negativo de bytes.
+	// ID 20: Intentamos escribir un número negativo de bytes.
 	written = writeFile(ret, blocks[0], -1); // DEBERIA ESTAR EN EL DISCO.
 	if (written == -1)
 		printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "fbuff.txt ", ANSI_COLOR_RED, "BAD_WRITE NEGATIVE\n", ANSI_COLOR_RESET);
 	if (written != -1)
 		printf("%s%s%s%s%s%d\n", ANSI_COLOR_BLUE, "fbuff.txt ", ANSI_COLOR_YELLOW, "WARNING WRITE NEGATIVE ", ANSI_COLOR_RESET, written);
 
-	// Sobreescribimos partes pequeñas.
+	// ID 21: Sobreescribimos partes pequeñas.
 	if (lseekFile(ret, FS_SEEK_BEGIN, 0) == -1)
 		printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "SEEK_BEGIN ", ANSI_COLOR_RED, "FAIL\n", ANSI_COLOR_RESET);
 	written = writeFile(ret, blocks[3], SBUFF);
@@ -388,7 +388,7 @@ int main() {
 		printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "fbuff.txt ", ANSI_COLOR_RED, "BAD_WRITE SEEK 128\n", ANSI_COLOR_RESET);
 	if (written != SBUFF)
 		printf("%s%s%s%s%s%d\n", ANSI_COLOR_BLUE, "fbuff.txt ", ANSI_COLOR_YELLOW, "WARNING WRITE SEEK 128 ", ANSI_COLOR_RESET, written);
-	
+
 	if (lseekFile(ret, FS_SEEK_CUR, 1023) == -1)
 		printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "SEEK_CUR 1023 ", ANSI_COLOR_RED, "FAIL\n", ANSI_COLOR_RESET);
 	written = writeFile(ret, blocks[3], SBUFF);
@@ -398,7 +398,7 @@ int main() {
 		printf("%s%s%s%s%s%d\n", ANSI_COLOR_BLUE, "fbuff.txt ", ANSI_COLOR_YELLOW, "WARNING WRITE SEEK 1023 ", ANSI_COLOR_RESET, written);
 	closeFile(ret);
 
-	// Escribimos un fichero entero 'a trozos'.
+	// ID 22: Escribimos un fichero entero 'a trozos'.
 	ret = openFile("buff.txt");
 	if (ret == -1)
 		printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "buff.txt ", ANSI_COLOR_RED, "BAD_OPEN\n", ANSI_COLOR_RESET);
@@ -414,9 +414,7 @@ int main() {
 	if (written != BUFF)
 		printf("%s%s%s%s%s%d\n", ANSI_COLOR_BLUE, "buff.txt ", ANSI_COLOR_YELLOW, "WARNING WRITE 2 ", ANSI_COLOR_RESET, written);
 
-
-	// Leemos el fichero entero y comprobamos si se corresponde con lo escrito.
-	// en una sola llamada.
+	// ID 23: Leemos el fichero entero y comprobamos si se corresponde con lo escrito en una sola llamada.
 	ret = openFile("fbuff.txt");
 	if (ret == -1)
 		printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "fbuff.txt ", ANSI_COLOR_RED, "BAD_OPEN\n", ANSI_COLOR_RESET);
@@ -428,7 +426,7 @@ int main() {
 	printf("\nBLOQUE ENTERO: [%s]\n\n", full_buff);
 	bzero(buff, FBUFF);
 
-	// Intentamos leer más que el límite del fichero.
+	// ID 24: Intentamos leer más que el límite del fichero.
 	readed = readFile(ret, full_buff, FBUFF);
 	if (readed == -1)
 		printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "fbuff.txt ", ANSI_COLOR_RED, "BAD_READ MORE\n", ANSI_COLOR_RESET);
@@ -437,7 +435,7 @@ int main() {
 	printf("\nBLOQUE EXTRA: [%s]\n\n", full_buff);
 	bzero(buff, FBUFF);
 
-	// Intentamos escribir un número negativo de bytes.
+	// ID 25: Intentamos escribir un número negativo de bytes.
 	readed = readFile(ret, full_buff, -1);
 	if (readed == -1)
 		printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "fbuff.txt ", ANSI_COLOR_RED, "BAD_READ NEGATIVE\n", ANSI_COLOR_RESET);
@@ -446,7 +444,7 @@ int main() {
 	printf("\nBLOQUE ENTERO: [%s]\n\n", full_buff);
 	bzero(buff, FBUFF);
 
-	// Desmontar el sistema de ficheros.
+	// ID 26: Desmontar el sistema de ficheros.
 	ret = unmountFS();
 	if(ret != 0) {
 		fprintf(stdout, "%s%s%s%s%s", ANSI_COLOR_BLUE, "unmountFS ", ANSI_COLOR_RED, "FAILED\n", ANSI_COLOR_RESET);
@@ -454,8 +452,7 @@ int main() {
 	}
 	fprintf(stdout, "%s%s%s%s%s", ANSI_COLOR_BLUE, "unmountFS ", ANSI_COLOR_GREEN, "SUCCESS\n", ANSI_COLOR_RESET);
 
-	// Volvemos a montar el sistema de ficheros para comprobar la persistencia
-	// de los datos en disco.
+	// ID 27: Volvemos a montar el sistema de ficheros para comprobar la persistencia de los datos en disco.
 	ret = mountFS();
 	if(ret != 0) {
 		fprintf(stdout, "%s%s%s%s%s", ANSI_COLOR_BLUE, "mountFS ", ANSI_COLOR_RED, "FAILED\n", ANSI_COLOR_RESET);
@@ -463,8 +460,7 @@ int main() {
 	}
 	fprintf(stdout, "%s%s%s%s%s", ANSI_COLOR_BLUE, "mountFS ", ANSI_COLOR_GREEN, "SUCCESS\n", ANSI_COLOR_RESET);
 
-
-	// Leemos trozos de un fichero guardado en disco.
+	// ID 28: Leemos trozos de un fichero guardado en disco.
 	ret = openFile("fbuff.txt");
 	if (ret == -1)
 		printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "fbuff.txt ", ANSI_COLOR_RED, "BAD_OPEN\n", ANSI_COLOR_RESET);
@@ -485,7 +481,7 @@ int main() {
 		printf("%s%s%s%s%s%d\n", ANSI_COLOR_BLUE, "fbuff.txt ", ANSI_COLOR_YELLOW, "WARNING READ SMALL ", ANSI_COLOR_RESET, readed);
 	printf("CUARTO BLOQUE: [%s]\n\n", half_buff);
 
-	// Escribir un fichero byte a byte.
+	// ID 29: Escribir un fichero byte a byte.
 	ret = createFile("sbuff.txt");
 	if (ret == -1)
 		printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "sbuff.txt ", ANSI_COLOR_RED, "EXISTS\n", ANSI_COLOR_RESET);
@@ -502,7 +498,7 @@ int main() {
 			printf("%s%s%s%s%s%d\n", ANSI_COLOR_BLUE, "buff.txt ", ANSI_COLOR_YELLOW, "WARNING WRITE BYTE ", ANSI_COLOR_RESET, written);
 	}
 
-	// Leer un fichero byte a byte.
+	// ID 30: Leer un fichero byte a byte.
 	ret = openFile("buff.txt");
 	if (ret == -1)
 		printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "buff.txt ", ANSI_COLOR_RED, "BAD_OPEN\n", ANSI_COLOR_RESET);
@@ -518,7 +514,7 @@ int main() {
 	}
 	printf("]\n\n");
 
-	// Intentamos leer de ficheros con un descriptor fuera de rango.
+	// ID 31: Intentamos leer de ficheros con un descriptor fuera de rango.
 	ret = -1;
 	if (readFile(ret, half_buff, SBUFF) == -1)
 		printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "fd=-1 ", ANSI_COLOR_RED, "BAD_READ\n", ANSI_COLOR_RESET);
@@ -526,7 +522,7 @@ int main() {
 	if (readFile(ret, half_buff, SBUFF) == -1)
 		printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "fd=64 ", ANSI_COLOR_RED, "BAD_READ\n", ANSI_COLOR_RESET);
 
-	// Intentamos escribir en ficheros con un descriptor fuera de rango.
+	// ID 32: Intentamos escribir en ficheros con un descriptor fuera de rango.
 	ret = -1;
 	if (writeFile(ret, blocks[1], BUFF) == -1)
 		printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "fd=-1 ", ANSI_COLOR_RED, "BAD_WRITE\n", ANSI_COLOR_RESET);
@@ -534,14 +530,14 @@ int main() {
 	if (writeFile(ret, blocks[1], BUFF) == -1)
 		printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "fd=64 ", ANSI_COLOR_RED, "BAD_WRITE\n", ANSI_COLOR_RESET);
 
-	//mkFS más grande
+	// ID 33: mkFS más grande
 	ret = mkFS(DEV_SIZE+1);
 	if(ret != 0) {
 		printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "mkFS muy grande ", ANSI_COLOR_RED, "FAILED\n", ANSI_COLOR_RESET);
 	}
 	else{ printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "mkFS muy grande ", ANSI_COLOR_GREEN, "SUCCESS\n", ANSI_COLOR_RESET);}
 
-	//mkFS con tamaño más pequeño que el device size, fallo al intentar crear un archivo
+	// ID 34: mkFS con tamaño más pequeño que el device size, fallo al intentar crear un archivo
 	ret = mkFS(5000);
 	if(ret != 0) {
 		printf("%s%s%s%s%s", ANSI_COLOR_BLUE, "mkFS muy pequeño ", ANSI_COLOR_RED, "FAILED\n", ANSI_COLOR_RESET);
